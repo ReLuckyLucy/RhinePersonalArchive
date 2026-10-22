@@ -19,7 +19,31 @@ jobs:
       - run: npm run setup
       - run: npm run build
       - run: npm test
-      - run: npm run test:e2e
+      # Hosted runners have no suitable GPU for the full wave acceptance suite.
+      # Full-resolution WebGL interaction is verified locally before a release.
+      - run: npm run test:e2e -- tests/browser/shell.test.mjs
+      - name: Verify native workflow
+        env:
+          RHINE_PORT: 14318
+        run: |
+          node scripts/start-local.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/smoke-app.mjs http://127.0.0.1:14318
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify native restart persistence
+        env:
+          RHINE_PORT: 14318
+        run: |
+          node scripts/stop-local.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/start-local.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/smoke-app.mjs http://127.0.0.1:14318 --persist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Stop native test service
+        if: always()
+        run: |
+          if (Test-Path node_modules) { node scripts/stop-local.mjs }
       - run: npm run package:source
   docker:
     runs-on: ubuntu-latest
