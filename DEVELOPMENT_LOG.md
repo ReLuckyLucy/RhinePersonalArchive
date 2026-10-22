@@ -20,3 +20,4 @@
   the same export and encrypted backup/restore workflow.
 - Remaining acceptance is limited to Office DOCX visual inspection and real
   iPhone/Safari motion and touch testing, tracked separately in TODO.md.
+- CI browser diagnostics preserve the original error if screenshots fail. GPU-less checks use a fixed software driver and reduced pixel density; local full-resolution browser acceptance remains separate.
