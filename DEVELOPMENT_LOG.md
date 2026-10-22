@@ -1,5 +1,37 @@
 # Development log
 
+## 2026-10-22 — detail reading and evidence comparison
+
+- Added expanded reading without changing the scene, models or camera. Desktop
+  places the source beside its contribution; narrow source pages prioritize the
+  selected original. Single-dossier extraction counts collapse, while failures
+  and retries remain visible and library-wide statistics remain full.
+- Added keyboard-accessible original/text tabs for visual files, native PDF
+  navigation/zoom, source version and claim context, and return-to-claim focus.
+  Text corrections refresh only the matching selected version. Generation checks
+  discard late text responses after a view switch; missing pinned versions fail
+  explicitly without substituting new material.
+- Reading layout and favorite changes preserve unsaved text and current preview.
+  Independent review caught the favorites-filter removal path; a failing browser
+  regression preceded the fix that retains an open dossier until back. Existing
+  lifecycle acceptance now checks this behavior and still verifies WebGL cleanup.
+  Re-review found no remaining actionable issues.
+- Reference descriptions, materials and note forms use their own wording and
+  do not offer personal-fact confirmation. Organize/merge uses the detail menu.
+- Verified production build, 49 integration tests and all 13 browser suites in
+  three sequential groups. Light/dark screenshots at 1440/760/390/334 pixels
+  include contribution comparison, corrected text and narrow reading layouts.
+  Pinned-source refusal, delayed text response, favorites-filter preservation,
+  full workflow and WebGL disposal/retry passed with isolated synthetic libraries.
+- The browser harness now permits Chromium's packaged PDF resources and built-in
+  PDF extension, preserving its block on unrelated external network origins.
+  The initial failure reported null origins; full URL diagnostics identified the
+  browser-internal resources before the narrowly scoped harness change.
+- Public source scan: 940 files, 27 private identity markers, zero hits. Live
+  health and generated entry match the current build; configuration hash is
+  unchanged. No backend/schema migration or private material queue was needed.
+  Published v0.1.0 assets remain unchanged; resume guidance/export is next.
+
 ## 2026-10-22 — usability entry points
 
 - Preserved the wave scene and its motion. Utility labels stay visible across

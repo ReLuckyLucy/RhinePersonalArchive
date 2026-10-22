@@ -39,14 +39,14 @@ export function mountShell(root:HTMLElement):AppShell {
   const showToast=(message:string)=>{const el=root.querySelector<HTMLElement>('.toast')!;el.textContent=message;el.hidden=false;setTimeout(()=>el.hidden=true,3500);};
   const changed=()=>{void api<Dossier[]>('dossiers').then(data=>{
     dossiers=data;
-    if(detailId&&!waveData(data,state).some(d=>d.id===detailId)){detailId=undefined;selectedHit=undefined;}
+    if(detailId&&!waveData(data,state,detailId).some(d=>d.id===detailId)){detailId=undefined;selectedHit=undefined;}
     if(state.route==='archives'&&!editing)render();
   }).catch(()=>showToast('档案列表刷新失败，请重新打开个人档案。'));};
   const render=()=>{
     root.querySelectorAll<HTMLButtonElement>('.main-nav [data-route]').forEach(b=>{b.classList.toggle('active',b.dataset.route===state.route);b.setAttribute('aria-current',b.dataset.route===state.route?'page':'false');});
     root.querySelector('[data-action="saved"] b')!.textContent=String(dossiers.filter(d=>d.favorite).length).padStart(2,'0');root.querySelector('[data-action="saved"]')!.setAttribute('aria-pressed',String(state.favoriteOnly));
     if(state.route==='archives'&&!editing){
-      const data=waveData(dossiers,state),identity=waveKey(data);
+      const data=waveData(dossiers,state,detailId),identity=waveKey(data);
       if(!wave||waveIdentity!==identity){disposePage?.();disposePage=undefined;wave?.dispose();wave=mountWaveArchive(main,data,state,{read,back,edit:d=>{editing=d;render();},changed});waveIdentity=identity;}
       else wave.update(data);
       wave.showDetail(detailId,selectedHit,location);return;

@@ -7,9 +7,10 @@
 - [x] Select an existing dossier before upload; retain the file and selection after failures.
 - [x] Link review reasons to role/date fields or facts/materials tabs; restore return context.
 - [x] Open and focus library location directly from its management entry.
-- [ ] Next pass: detail reading space, compact extraction status and original/evidence comparison.
+- [x] Detail reading space, compact extraction status and original/evidence comparison.
 - [ ] Following pass: resume stage guidance and stable preview/export actions.
-- [ ] Adapt reference-dossier wording and secondary organization actions.
+- [x] Adapt reference-dossier wording and secondary organization actions.
+- [x] Preserve the open detail and unsaved statement after removing a favorite, including from the favorites filter.
 
 ## Extraction progress
 
@@ -17,7 +18,7 @@
 - [x] Explicit pending extraction, individual failure retry and readable reasons.
 - [x] Poll only mounted/visible pages; preserve unsaved statements and pinned previews.
 - [x] Refresh completed text and review reasons without reopening the dossier.
-- [ ] Next separate slice: original/evidence reading layout.
+- [x] Original/evidence reading layout with pinned versions and text/original switching.
 
 ## Current library identity
 

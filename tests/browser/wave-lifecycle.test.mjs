@@ -10,7 +10,9 @@ export async function run({page,baseURL,ctx}){
  await page.goto(baseURL);await page.locator('[data-action=saved]').click();await page.locator('[data-dossier]').filter({hasText:'收藏档案甲'}).click();
  await page.getByRole('button',{name:'读取档案',exact:true}).click();await page.getByRole('button',{name:'取消收藏',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('[data-action=saved] b').textContent==='01');
- assert.equal(await page.locator('.wave-stage').getAttribute('data-mode'),'archive','removing the open favorite must close its detail');
+ assert.equal(await page.locator('.wave-stage').getAttribute('data-mode'),'detail','removing the open favorite must keep its detail until back');
+ await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
+ assert.equal(await page.locator('.wave-stage').getAttribute('data-mode'),'archive');
  assert.equal(await page.locator('[data-dossier]').filter({hasText:'收藏档案甲'}).count(),0);
  await page.getByRole('button',{name:'简历工作台',exact:true}).click();
  await page.route('**/archive-cassette.glb',async route=>{await new Promise(resolve=>setTimeout(resolve,2500));await route.continue().catch(()=>{});});

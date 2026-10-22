@@ -5,17 +5,18 @@ import {escapeHtml as esc} from '../../ui/html';
 export const extractionLabels:Record<ExtractionState,string>={pending:'待提取文字',queued:'等待提取',running:'正在提取',ready:'文字已提取',failed:'文字提取失败',unsupported:'暂不支持文字提取'};
 const reasons:Record<string,string>={TIMEOUT:'提取超时，可重试。',SOURCE_UNAVAILABLE:'原件缺失，请先重新定位原件。',SOURCE_CHANGED:'原件已变化，请先重新导入。',STALE_VERSION:'材料版本已变化，请重新打开档案。',LIMIT:'超过自动提取上限，请拆分材料或补充本人陈述。',WORKER_EXIT:'提取进程中断，可重试。'};
 
-export function mountExtractionProgress(root:HTMLElement,options:{dossierId?:string;onUpdate?:(snapshot:ExtractionSnapshot)=>void}={}){
+export function mountExtractionProgress(root:HTMLElement,options:{dossierId?:string;compact?:boolean;onUpdate?:(snapshot:ExtractionSnapshot)=>void}={}){
  let alive=true,inFlight=false,again=false,sending=false,stale=true,snapshot:ExtractionSnapshot|undefined,timer:ReturnType<typeof setTimeout>|undefined,failuresKey='';
  const controller=new AbortController(),labels:Record<ExtractionState,string>={pending:'待提取',queued:'排队中',running:'处理中',ready:'已提取',failed:'失败',unsupported:'不支持'};
- root.classList.add('extraction-progress');root.setAttribute('role','region');root.setAttribute('aria-label',options.dossierId?'当前档案文字提取':'全库文字提取');
- root.innerHTML=`<div class="extraction-heading"><div><span class="eyebrow">TEXT EXTRACTION</span><h2>${options.dossierId?'当前档案':'全库'}文字提取</h2></div><button class="outline-button" data-extraction-start disabled>${options.dossierId?'提取文字':'提取待处理材料文字'}</button></div><p class="extraction-summary" data-extraction-summary>正在读取进度…</p><dl class="extraction-counts">${Object.entries(labels).map(([state,label])=>`<div><dt>${label}</dt><dd data-extraction-count="${state}">—</dd></div>`).join('')}</dl><p class="extraction-activity" data-extraction-activity></p><div class="extraction-failures"></div><p class="extraction-message" role="status" data-extraction-message></p><button class="text-button" data-extraction-reload hidden>重新读取进度</button>`;
+ root.classList.add('extraction-progress');root.classList.toggle('is-compact',!!options.compact);root.setAttribute('role','region');root.setAttribute('aria-label',options.dossierId?'当前档案文字提取':'全库文字提取');
+ const statistics=`<dl class="extraction-counts">${Object.entries(labels).map(([state,label])=>`<div><dt>${label}</dt><dd data-extraction-count="${state}">—</dd></div>`).join('')}</dl><p class="extraction-activity" data-extraction-activity></p>`;
+ root.innerHTML=`<div class="extraction-heading"><div>${options.compact?'':'<span class="eyebrow">TEXT EXTRACTION</span>'}<h2>${options.dossierId?'当前档案':'全库'}文字提取</h2></div><button class="outline-button" data-extraction-start disabled>${options.dossierId?'提取文字':'提取待处理材料文字'}</button></div><p class="extraction-summary" data-extraction-summary>正在读取进度…</p>${options.compact?`<details data-extraction-details><summary>提取详情</summary>${statistics}</details>`:statistics}<div class="extraction-failures"></div><p class="extraction-message" role="status" data-extraction-message></p><button class="text-button" data-extraction-reload hidden>重新读取进度</button>`;
  const query=<T extends HTMLElement>(selector:string)=>root.querySelector<T>(selector)!;
  const start=query<HTMLButtonElement>('[data-extraction-start]'),reload=query<HTMLButtonElement>('[data-extraction-reload]'),message=query('[data-extraction-message]');
  function buttons(){start.disabled=stale||sending||!snapshot?.counts.pending;root.querySelectorAll<HTMLButtonElement>('[data-extraction-retry]').forEach(b=>b.disabled=stale||sending);}
  function draw(next:ExtractionSnapshot){
   snapshot=next;stale=false;root.dataset.state='current';reload.hidden=true;
-  query('[data-extraction-summary]').textContent=next.total?`已提取 ${next.counts.ready} / ${next.total} 份材料的文字`:'尚无材料，添加材料后可提取文字。';
+  query('[data-extraction-summary]').textContent=next.total?`已提取 ${next.counts.ready} / ${next.total} 份材料的文字`+(options.compact?(['queued','running','failed','unsupported'] as const).filter(state=>next.counts[state]).map(state=>` · ${labels[state]} ${next.counts[state]}`).join(''):''):'尚无材料，添加材料后可提取文字。';
   for(const [state,value] of Object.entries(next.counts))query(`[data-extraction-count=${state}]`).textContent=String(value);
   const running=next.materials.find(m=>m.state==='running');
   query('[data-extraction-activity]').textContent=running?`正在处理：${running.name}`:next.counts.queued?`${next.counts.queued} 份材料正在排队，可继续整理档案。`:next.counts.pending?'点击提取后在本机处理，完成状态会自动更新。':next.counts.failed?'部分材料提取失败，请查看原因后重试。':next.counts.unsupported?'其余材料暂不支持自动提取，可打开原件或补充本人陈述。':next.total?'全部可提取材料已完成。':'';

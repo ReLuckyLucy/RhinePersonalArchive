@@ -48,15 +48,15 @@
 | --- | --- |
 | `src/features/archives/wave.ts` | 业务档案与三维场景连接、选择/读取、详情进出及资源生命周期 |
 | `src/features/archives/editor.ts` | 新建/编辑档案、日期精度、类型专属字段和页面会话草稿 |
-| `src/features/archives/detail.ts` | 概述、个人贡献、证明材料、使用记录及其操作 |
+| `src/features/archives/detail.ts` | 类型对应的详情内容、展开阅读、贡献/原件对照及当前阅读状态保留 |
 | `src/features/archives/import.ts` | 可选 JSON 清单路径输入和导入结果 |
 | `src/features/archives/add-material.ts` | 首页添加材料、明确归属、失败保留选择及成功后进入档案 |
 | `src/features/archives/navigation.ts` | 档案页签定位及待整理动作的界面契约 |
 | `src/features/archives/organize.ts` | 归档、恢复和合并的操作界面 |
-| `src/features/archives/preview.ts` | 材料预览、定位与文件展示的清理 |
-| `src/features/archives/text-editor.ts` | 原始提取结果与人工校对的修订提交 |
+| `src/features/archives/preview.ts` | 固定材料版本的原件/文字切换、定位、过期响应隔离与展示清理 |
+| `src/features/archives/text-editor.ts` | 原始提取结果与人工校对的修订提交，保存后通知当前文字预览 |
 | `src/features/review/page.ts` | 待整理列表及批量文字提取入口 |
-| `src/features/extraction/progress.ts` | 全库/当前档案提取统计、可见时刷新、失败原因与手动重试 |
+| `src/features/extraction/progress.ts` | 全库统计/单档案紧凑摘要、可见时刷新、失败原因与手动重试 |
 | `src/features/review/editor.ts` | 事实、成果归属、证明字段、证据位置/摘录/等级表单 |
 | `src/features/search/modal.ts` | 搜索弹窗、筛选、键盘结果导航和读取定位 |
 | `src/features/resume/page.ts` | 简历工作台初始说明与空态 |
@@ -188,6 +188,7 @@
 | `tests/browser/onboarding.test.mjs`、`journey.test.mjs` | 空库入口及贯穿材料、事实、简历的用户流程 |
 | `tests/browser/extraction-progress.test.mjs` | 自动进度、失败重试、读取恢复、窄屏及退出后的轮询清理 |
 | `tests/browser/actions.test.mjs` | 入口、按原因跳转、返回焦点、指定归属上传和失败恢复 |
+| `tests/browser/reading.test.mjs` | 阅读空间、贡献/原件对照、文字校对刷新、异步切换、收藏草稿保留与参考类型 |
 | `tests/browser/shell.test.mjs`、`search.test.mjs`、`detail.test.mjs` | 导航、检索、详情和键盘交互 |
 | `tests/browser/review.test.mjs`、`revisions.test.mjs`、`resume.test.mjs` | 待整理、修订、证据与简历编辑操作 |
 | `tests/browser/wave.test.mjs`、`wave-lifecycle.test.mjs` | 实际三维界面、选择、过渡与资源生命周期 |

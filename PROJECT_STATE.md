@@ -45,8 +45,8 @@ The first usability pass is implemented: visible Chinese utility labels, clear
 new/upload actions, an advanced actions menu, explicit material ownership,
 reason-specific review navigation with return focus/scroll, and direct library
 location management. It reuses existing import and edit APIs; no database schema
-or backend behavior changed. The reading and resume improvements in UX-REVIEW.md
-remain separate pending slices, tracked in TODO.md.
+or backend behavior changed. The reading pass follows below; the resume stage
+and export improvements in UX-REVIEW.md remain pending, tracked in TODO.md.
 
 Verification: 49 integration tests, production build and all 12 browser suites
 passed across two groups. Homepage/upload/review paths were checked at desktop
@@ -55,3 +55,26 @@ Public source privacy scan: 939 files, 27 private identity markers, zero matches
 The live UI was loaded and its new actions observed. Local configuration and
 schema matched the acceptance baseline; the whole-database hash changed during
 concurrent browsing, so full data immutability is not claimed for that live run.
+
+The second usability pass adds expanded detail reading, compact dossier extraction
+statistics, contribution/source comparison, return-to-contribution focus and
+original/extracted-text tabs. PDF navigation and zoom use the browser's native
+viewer. Source versions remain pinned; late responses cannot replace a newer
+view selection. Saved human text corrections refresh the matching preview.
+Reading and favorite changes preserve unsaved statements; an open dossier stays
+available after unfavoriting until back applies the favorites filter. Reference
+dossiers use reference descriptions/materials/notes without personal confirmation
+actions. Archive/merge lives in the detail's secondary menu.
+
+This slice changes frontend behavior only, with no schema or backend changes.
+The live service serves the current production build, and its configuration hash
+is unchanged. Synthetic isolated libraries supply all writing tests and screenshots;
+no private materials were queued for acceptance. Public source scan: 940 files,
+27 private identity markers, zero matches. Published v0.1.0 assets are unchanged.
+
+Verification: production build, 49/49 integration tests and all 13 browser suites
+passed in three sequential groups. Reading screenshots were checked in light/dark
+at 1440, 760, 390 and 334 pixels; native PDF switching, delayed text responses,
+correction refresh and favorite-filter draft retention were exercised with
+synthetic material. The old source-version refusal and WebGL lifecycle regressions
+also passed. Real iPhone/Safari acceptance remains separate as listed in TODO.md.

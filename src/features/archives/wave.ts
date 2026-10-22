@@ -14,7 +14,8 @@ import type {DossierLocation} from './navigation';
 
 type Actions={read(id:string):void;back():void;edit(d:Dossier):void;changed():void};
 const label=(kind:string)=>categories.find(([key])=>key===kind)?.[1]??'参考资料';
-export const waveData=(dossiers:Dossier[],state:ViewState)=>dossiers.filter(d=>!state.favoriteOnly||d.favorite).sort((a,b)=>a.id.localeCompare(b.id));
+// Keep an open dossier in the array until back, even after removing its favorite.
+export const waveData=(dossiers:Dossier[],state:ViewState,openId?:string)=>dossiers.filter(d=>!state.favoriteOnly||d.favorite||d.id===openId).sort((a,b)=>a.id.localeCompare(b.id));
 export const waveKey=(data:Dossier[])=>data.map(d=>`${d.id}:${d.kind}`).join('|');
 
 export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState,actions:Actions){
@@ -33,10 +34,10 @@ export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState
   state.selectedId=d.id;state.category=d.kind;stage.dataset.selectedId=d.id;memory.set(d.kind,d.id);
   root.querySelector<HTMLElement>('[data-wave-read]')!.dataset.read=d.id;
   root.querySelector('.wave-help')!.textContent=prefs.reduced?'减少动态效果已开启 · 可在设置中恢复波浪与惯性':'拖动浏览 · 滚轮切档 · 方向键切换 · Enter 读取';
-  root.querySelector('.wave-meta')!.textContent=`${label(d.kind)} / ${d.dateRange.start.value??'日期待核对'}`;
+  root.querySelector('.wave-meta')!.textContent=`${label(d.kind)} / ${d.dateRange.start.value??(d.kind==='reference'?'日期未标注':'日期待核对')}`;
   if(!title)title=createRollingText(heading,{text:d.title,duration:460,animated:!prefs.reduced,mode:'roll',direction:'up',stagger:'none'});
   else title.update({text:d.title,animated:!prefs.reduced});
-  selection.querySelector('p')!.textContent=d.role||d.organization||'个人角色与材料待核对';
+  selection.querySelector('p')!.textContent=d.role||d.organization||(d.kind==='reference'?'参考材料，不代表本人经历':'个人角色与材料待核对');
   const files=columnFiles(fileLocation(index).lane);
   root.querySelector('.wave-index')!.innerHTML=files.map((i,n)=>`<button data-dossier="${records[i].id}" data-wave-index="${i}" aria-label="${esc(records[i].title)}" aria-pressed="${i===index}" title="${esc(records[i].title)}"><span>${String(n+1).padStart(2,'0')}</span><span class="visually-hidden">${esc(records[i].title)}</span></button>`).join('');
   root.querySelector('.wave-count')!.textContent=`${String(files.indexOf(index)+1).padStart(2,'0')} / ${String(files.length).padStart(2,'0')}`;
@@ -110,8 +111,8 @@ export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState
  };
  const key=(e:KeyboardEvent)=>{
   if(hasModal()||root.inert||(e.target instanceof HTMLElement&&e.target.closest('input,textarea,select,[contenteditable="true"]')))return;
-  const more=root.querySelector<HTMLDetailsElement>('.archive-more')!;
-  if(e.key==='Escape'&&more.open){e.preventDefault();more.open=false;more.querySelector<HTMLElement>('summary')!.focus();return;}
+  const more=root.querySelector<HTMLDetailsElement>('.archive-more[open]');
+  if(e.key==='Escape'&&more){e.preventDefault();more.open=false;more.querySelector<HTMLElement>('summary')!.focus();return;}
   if(detailId){if(e.key==='Escape'){e.preventDefault();actions.back();}return;}
   const moves:Record<string,['row'|'lane',number]>={ArrowUp:['row',-1],ArrowDown:['row',1],ArrowLeft:['lane',-1],ArrowRight:['lane',1]};
   if(moves[e.key]){e.preventDefault();step(...moves[e.key]);}
