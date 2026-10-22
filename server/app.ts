@@ -9,7 +9,7 @@ import { listFacts,saveFact,confirmFact,withdrawFact,getFactHistory,listReviewIt
 import { mergeDossiers,archiveDossier,restoreDossier } from './archive/organize.ts';
 import { visitDossier } from './archive/repository.ts';
 import { AppError } from '../shared/errors.ts';
-import { APP_ID } from '../shared/api.ts';
+import { APP_ID,type LibraryInfo } from '../shared/api.ts';
 import { importCatalog,importFiles,relocateSource } from './sources/import.ts';
 import { listSources } from './sources/repository.ts';
 import { sendSource,openSource } from './sources/http.ts';
@@ -30,6 +30,14 @@ export async function createLocalApp(ctx:LibraryContext,options:{dev?:boolean;on
  if(route==='/api/health'&&method==='GET'){json(res,{appId:APP_ID,instanceId:auth.instanceId,pid:process.pid});return;}
  if(route==='/api/session'&&method==='GET'){json(res,auth.create(req,res));return;}
  if(route.startsWith('/api/')){auth.check(req);
+ if(route==='/api/library'&&method==='GET'){
+  const counts=ctx.db.prepare(`SELECT
+   (SELECT count(*) FROM dossiers) dossierCount,
+   (SELECT count(*) FROM dossiers d JOIN settings s ON s.key='archived-dossier:'||d.id) archivedDossierCount,
+   (SELECT count(*) FROM sources) sourceCount`).get()!;
+  const info:LibraryInfo={name:basename(ctx.libraryRoot)||ctx.libraryRoot,directory:ctx.libraryRoot,dossierCount:Number(counts.dossierCount),archivedDossierCount:Number(counts.archivedDossierCount),sourceCount:Number(counts.sourceCount)};
+  json(res,info);return;
+ }
  if(route==='/api/shutdown'&&method==='POST'){const b=await readJson(req);if(!options.onShutdown||b.instanceId!==auth.instanceId)throw new AppError('INSTANCE','实例不匹配');json(res,{});setTimeout(options.onShutdown,100);return;}
  if(route==='/api/settings'&&method==='GET'){json(res,{...(await loadConfig()),libraryRoot:ctx.libraryRoot});return;}
  if(route==='/api/settings'&&method==='POST'){const b=await readJson(req),old=await loadConfig();await saveConfig({...old,libraryRoot:b.libraryRoot,backupDirectory:b.backupDirectory});const restart=resolve(b.libraryRoot)!==resolve(ctx.libraryRoot);json(res,{restart});if(restart&&options.onRestart)setTimeout(options.onRestart,100);return;}

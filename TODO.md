@@ -1,5 +1,10 @@
 # Development TODO
 
+## Current library identity
+
+- [x] Show the connected library name and open its current path/counts without changing data.
+- [x] Verify empty-library identity, retry, keyboard return and desktop/mobile layout.
+
 ## Standalone v0.1.0
 
 - [x] Preserve wave array, search, dossier/evidence/resume workflows.

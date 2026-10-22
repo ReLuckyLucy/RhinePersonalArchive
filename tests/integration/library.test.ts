@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { basename,resolve } from 'node:path';
 import { request } from 'node:http';
 import { migrate,migrations } from '../../server/db/migrations.ts';
 import { openLibrary, closeLibrary } from '../../server/db/database.ts';
 import { saveDossier, listDossiers, saveProfile } from '../../server/archive/repository.ts';
 import { createLocalApp } from '../../server/app.ts';
+import { archiveDossier } from '../../server/archive/organize.ts';
 const unknown={value:null,precision:'unknown'} as const;
 const input={kind:'project',title:"合成项目 ' ; SELECT",aliases:[],dateRange:{start:unknown,end:unknown,ongoing:false},organization:'',role:'',summary:'',skills:[],typedDetails:{technologies:[]},favorite:false} as const;
 test('persists dates without inventing precision; rejects stale edits',async()=>{
@@ -33,3 +34,23 @@ test('rejects foreign requests and requires a session and CSRF',async()=>{
 test('failed migration rolls back schema and version',async()=>{const root=await mkdtemp(resolve('runtime/test-migration-'));const ctx=await openLibrary(root);try{await assert.rejects(migrate(ctx.db,ctx.runtimeRoot,[...migrations,'CREATE TABLE accidental(id TEXT); THIS IS INVALID']));assert.equal((ctx.db.prepare('PRAGMA user_version').get() as any).user_version,migrations.length);assert.equal(ctx.db.prepare("SELECT name FROM sqlite_master WHERE name='accidental'").get(),undefined);}finally{await closeLibrary(ctx);await rm(root,{recursive:true});}});
 import {readFile} from 'node:fs/promises';import {createTestLibrary} from '../helpers/library.ts';import {importFiles} from '../../server/sources/import.ts';
 test('PDF materials allow same-origin inline preview while unrelated pages cannot embed the app',async t=>{const ctx=await createTestLibrary(t);async function* files(){yield{name:'preview.pdf',stream:[await readFile('tests/fixtures/materials/text.pdf')]};}const report=await importFiles(ctx,files());const app=await createLocalApp(ctx);await new Promise<void>(r=>app.server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(app.server.address() as any).port}`;try{const session=await fetch(url+'/api/session'),cookie=session.headers.get('set-cookie')!.split(';')[0];const r=await fetch(url+`/api/sources/${report.sourceIds[0]}/file`,{headers:{cookie}});assert.equal(r.status,200);assert.equal(r.headers.get('x-frame-options'),'SAMEORIGIN');assert.ok(!r.headers.get('content-security-policy')!.includes('sandbox'));assert.equal((await fetch(url+'/api/health')).headers.get('x-frame-options'),'DENY');await r.arrayBuffer();}finally{await app.close();}});
+
+test('library identity describes the open library with authenticated read-only counts',async t=>{
+ const ctx=await createTestLibrary(t);
+ const active=saveDossier(ctx,{...input,title:'当前合成项目'},null);
+ const archived=saveDossier(ctx,{...input,title:'历史合成项目'},null);
+ archiveDossier(ctx,archived.id,archived.revision);
+ const files=()=>[{name:'proof.txt',stream:[Buffer.from('合成材料')]}];
+ await importFiles(ctx,files(),active.id);await importFiles(ctx,files(),active.id);
+ const before=ctx.db.prepare('SELECT total_changes() n').get()!.n;
+ const app=await createLocalApp(ctx);await new Promise<void>(r=>app.server.listen(0,'127.0.0.1',r));
+ try{
+  const url=`http://127.0.0.1:${(app.server.address() as any).port}`;
+  assert.equal((await fetch(url+'/api/library')).status,401);
+  const session=await fetch(url+'/api/session'),cookie=session.headers.get('set-cookie')!.split(';')[0];
+  const response=await fetch(url+'/api/library',{headers:{cookie}});
+  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
+  assert.deepEqual((await response.json()).data,{name:basename(ctx.libraryRoot),directory:ctx.libraryRoot,dossierCount:2,archivedDossierCount:1,sourceCount:1});
+  assert.equal(ctx.db.prepare('SELECT total_changes() n').get()!.n,before,'reading identity must not alter records');
+ }finally{await app.close();}
+});

@@ -12,3 +12,25 @@ label{font-size:12px}input,select,textarea{color:var(--ink);font:inherit;backgro
 .search-filters{flex-wrap:wrap}.search-filters input:not([type=checkbox]){max-width:160px;padding:7px;border:1px solid var(--line);background:transparent;color:inherit}.search-filters label{display:flex;align-items:center;gap:6px}
 
 .catalog-form>label{margin:24px 0 16px}.catalog-form input{width:100%}
+
+.app-footer>.footer-library{min-width:0;max-width:min(45%,420px)}
+.library-indicator{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;min-height:28px;text-align:left;pointer-events:auto}
+.library-caption,.library-arrow{flex:none}
+.library-indicator [data-library-name]{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.library-indicator:hover [data-library-name]{text-decoration:underline;text-underline-offset:4px}
+.library-indicator[data-state=error] [data-library-name]{color:var(--accent)}
+.library-modal{width:min(660px,94vw);min-height:0}
+.library-modal h2{margin-bottom:24px}
+.library-title{font-size:20px;line-height:1.7;overflow-wrap:anywhere}
+.library-state{font-size:11px;color:var(--muted);margin:10px 0 24px}
+.library-location{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;margin:0}
+.library-location dt{font-size:11px;color:var(--muted);margin-bottom:10px}
+.library-location dd{font-size:13px;line-height:1.9;margin:0;overflow-wrap:anywhere;user-select:text}
+.library-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}
+.library-counts>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px}
+.library-counts span{width:100%;font-size:11px;color:var(--muted);margin-bottom:6px}
+.library-counts b{font-size:28px;font-weight:400;font-variant-numeric:tabular-nums}
+.library-counts small{font-size:10px;color:var(--muted)}
+.library-modal .field-help{margin:12px 0}
+.library-modal .modal-bottom{margin-top:18px;align-items:center;flex-wrap:wrap}
+@media(max-width:680px){.app-footer>.footer-library{max-width:60%}.library-indicator{min-height:32px;gap:6px}.library-caption{display:none}.library-modal{width:100%}.library-counts b{font-size:24px}}

@@ -16,6 +16,12 @@ Release packaging rejects user databases, runtime configuration and private path
 Source and Windows packages are distributed through GitHub Releases; see
 docs/RELEASING.md for reproduction and checksum verification.
 
+Current source adds a footer indicator for the actually opened library, with a
+read-only path/counts dialog and a link to existing location settings. This is
+not yet part of the v0.1.0 downloads. Verification: 47/47 integration tests,
+production build, UI shell (retry, keyboard and narrow layouts), wave and wave
+lifecycle suites. Live reconnection preserved all existing tables and config.
+
 Resume boundaries: confirmed version-pinned evidence, manual truth review,
 immutable resume versions. Keyword matching and wording rules are not an AI
 truth checker. Read TODO.md before continuing development.

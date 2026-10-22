@@ -1,5 +1,17 @@
 # Development log
 
+## 2026-10-22 — current library identity
+
+- Added an authenticated, non-cached, read-only library identity endpoint derived
+  from the opened context, including unique materials and archived/active counts.
+- Footer shows the folder name without a native hover tooltip. Details expose
+  the full path, distinguish an empty library, retry failed reads and open the
+  existing location settings after closing the dialog.
+- Verified 47 integration tests, production build, shell (desktop/narrow layouts,
+  long names, failures and focus), wave and resource lifecycle browser suites.
+- Applied to the local service; all 23 existing tables and its local config were
+  unchanged. The published v0.1.0 assets remain the original release snapshot.
+
 ## 2026-10-22 — standalone release preparation
 
 - Replaced machine-specific defaults with writable project-relative runtime paths.

@@ -60,6 +60,7 @@
 | `src/features/resume/workspace.ts` | 草稿列表、编辑器装配及跨页核对后恢复 |
 | `src/features/resume/editor.ts` | 选材、栏目、个人信息、表述、预览、冻结版本和导出 |
 | `src/features/settings/page.ts` | 本机资料库和备份路径设置 |
+| `src/features/library/indicator.ts` | 当前资料库名称、只读位置/数量弹窗、重试及设置入口 |
 | `src/features/settings/backup.ts` | 加密备份、恢复验证和切换库的表单 |
 
 ## 三维场景
