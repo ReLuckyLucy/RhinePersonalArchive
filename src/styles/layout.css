@@ -34,3 +34,18 @@ label{font-size:12px}input,select,textarea{color:var(--ink);font:inherit;backgro
 .library-modal .field-help{margin:12px 0}
 .library-modal .modal-bottom{margin-top:18px;align-items:center;flex-wrap:wrap}
 @media(max-width:680px){.app-footer>.footer-library{max-width:60%}.library-indicator{min-height:32px;gap:6px}.library-caption{display:none}.library-modal{width:100%}.library-counts b{font-size:24px}}
+
+.extraction-progress{margin:24px 0 32px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.extraction-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.extraction-heading h2{font-size:17px;font-weight:500;margin:8px 0 0}
+.extraction-summary,.extraction-activity,.extraction-message{font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+.extraction-summary{color:var(--muted);margin:16px 0}
+.extraction-counts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:18px 0}
+.extraction-counts dt{font-size:11px;color:var(--muted)}
+.extraction-counts dd{font-size:25px;font-weight:400;font-variant-numeric:tabular-nums;margin:8px 0 0}
+.extraction-counts [data-extraction-count=failed]{color:#956b36}
+.extraction-failure{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}
+.extraction-failure>div{min-width:0;overflow-wrap:anywhere}.extraction-failure strong{font-weight:500}.extraction-failure p{color:var(--muted);line-height:1.7;margin:4px 0 0}.extraction-failure button{flex-shrink:0}
+.extraction-progress button:disabled{opacity:.45;cursor:default}.extraction-progress[data-state=stale] .extraction-counts{opacity:.5}
+.extraction-message:empty,.extraction-activity:empty{display:none}
+@media(max-width:680px){.extraction-counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}.extraction-heading .outline-button{max-width:100%;white-space:normal}}

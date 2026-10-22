@@ -1,5 +1,13 @@
 # Development TODO
 
+## Extraction progress
+
+- [x] Read-only current-version material counts, global and per dossier.
+- [x] Explicit pending extraction, individual failure retry and readable reasons.
+- [x] Poll only mounted/visible pages; preserve unsaved statements and pinned previews.
+- [x] Refresh completed text and review reasons without reopening the dossier.
+- [ ] Next separate slice: original/evidence reading layout.
+
 ## Current library identity
 
 - [x] Show the connected library name and open its current path/counts without changing data.

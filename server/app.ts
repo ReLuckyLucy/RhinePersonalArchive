@@ -14,6 +14,7 @@ import { importCatalog,importFiles,relocateSource } from './sources/import.ts';
 import { listSources } from './sources/repository.ts';
 import { sendSource,openSource } from './sources/http.ts';
 import { enqueueExtraction,runPendingJobs,recoverJobs } from './sources/jobs.ts';
+import {extractionSnapshot} from './sources/progress.ts';
 import { readExtractedText,reviseExtractedText } from './sources/extract.ts';
 import { searchArchive } from './search/service.ts';
 import {saveResumeDraft,getResumeDraft,listResumeDrafts,buildResumeDocument,freezeResumeVersion,getResumeVersion,listResumeVersions} from './resume/service.ts';
@@ -63,7 +64,15 @@ export async function createLocalApp(ctx:LibraryContext,options:{dev?:boolean;on
  const dossierRoute=/^\/api\/dossiers\/([a-f0-9-]{36})$/.exec(route);if(dossierRoute&&method==='GET'){const d=getDossier(ctx,dossierRoute[1]);json(res,{dossier:d,sources:listSources(ctx,d.id),facts:listFacts(ctx,d.id)});return;}
  if(route==='/api/search'&&method==='GET'){json(res,searchArchive(ctx,{text:url.searchParams.get('text')??'',kinds:url.searchParams.has('kind')?[url.searchParams.get('kind')!]:undefined,favorite:url.searchParams.get('favorite')==='true',status:url.searchParams.get('status')||undefined,fileTypes:url.searchParams.has('fileType')?[url.searchParams.get('fileType')!]:undefined,dateRange:{start:url.searchParams.get('from')||undefined,end:url.searchParams.get('to')||undefined},cursor:url.searchParams.get('cursor')??undefined}));return;}
  if(route==='/api/jobs'&&method==='GET'){json(res,ctx.db.prepare('SELECT data FROM jobs ORDER BY rowid DESC').all().map(r=>JSON.parse(r.data as string)));return;}
- if(route==='/api/jobs'&&method==='POST'){const b=await readJson(req);const ids=b.sourceIds??listSources(ctx).filter(s=>s.extractionState==='pending'||s.extractionState==='failed').map(s=>s.id);if(!Array.isArray(ids)||ids.length>1000)throw new AppError('VALIDATION','材料列表无效');const jobs=ids.map(id=>enqueueExtraction(ctx,id));processJobs();json(res,jobs);return;}
+ if(route==='/api/extraction-status'&&method==='GET'){json(res,extractionSnapshot(ctx,url.searchParams.get('dossierId')??undefined));return;}
+ if(route==='/api/jobs'&&method==='POST'){
+  const b=await readJson(req),states=b.onlyStates;
+  if(states!==undefined&&(!Array.isArray(states)||!states.length||states.some(s=>s!=='pending'&&s!=='failed')))throw new AppError('VALIDATION','提取状态筛选无效');
+  const snapshot=extractionSnapshot(ctx),ids=b.sourceIds??snapshot.materials.filter(s=>s.state==='pending'||s.state==='failed').map(s=>s.id);
+  if(!Array.isArray(ids)||ids.length>1000||ids.some(id=>typeof id!=='string'||!snapshot.materials.some(s=>s.id===id)))throw new AppError('VALIDATION','材料列表无效');
+  const selected=[...new Set<string>(ids)].filter(id=>!states||states.includes(snapshot.materials.find(s=>s.id===id)!.state));
+  const jobs=selected.map(id=>enqueueExtraction(ctx,id));processJobs();json(res,jobs);return;
+ }
  const textRoute=/^\/api\/sources\/([a-f0-9-]{36})\/text$/.exec(route);if(textRoute){const version=Number(url.searchParams.get('version'));if(method==='GET'){json(res,readExtractedText(ctx,textRoute[1],version));return;}if(method==='POST'){const b=await readJson(req);json(res,reviseExtractedText(ctx,textRoute[1],version,b.text,b.expectedRevision));return;}}
  if(route==='/api/sources'&&method==='GET'){json(res,listSources(ctx,url.searchParams.get('dossierId')??undefined));return;}
  if(route==='/api/sources/import'&&method==='POST'){const b=await readJson(req);const manifestPath=b.manifestPath??'00_总览与索引/资料库清单.json';if(typeof manifestPath!=='string'||!manifestPath.trim()||manifestPath.length>1000)throw new AppError('VALIDATION','请填写资料库内的清单相对路径');json(res,await importCatalog(ctx,manifestPath));return;}

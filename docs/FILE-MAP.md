@@ -54,6 +54,7 @@
 | `src/features/archives/preview.ts` | 材料预览、定位与文件展示的清理 |
 | `src/features/archives/text-editor.ts` | 原始提取结果与人工校对的修订提交 |
 | `src/features/review/page.ts` | 待整理列表及批量文字提取入口 |
+| `src/features/extraction/progress.ts` | 全库/当前档案提取统计、可见时刷新、失败原因与手动重试 |
 | `src/features/review/editor.ts` | 事实、成果归属、证明字段、证据位置/摘录/等级表单 |
 | `src/features/search/modal.ts` | 搜索弹窗、筛选、键盘结果导航和读取定位 |
 | `src/features/resume/page.ts` | 简历工作台初始说明与空态 |
@@ -111,7 +112,7 @@
 | `server/db/transaction.ts` | 同步事务和异步写入串行队列 |
 | `shared/schemas.ts` | 档案、日期、事实、证据、个人信息和草稿输入验证 |
 | `shared/domain.ts` | 前后端共用领域和配置类型 |
-| `shared/api.ts` | 应用身份与会话契约 |
+| `shared/api.ts` | 应用身份、会话、资料库身份与提取进度契约 |
 | `shared/errors.ts` | 有编码、状态和字段信息的业务错误 |
 | `shared/resume-document.ts` | 简历文档结构、检查项与共享 HTML/打印模板 |
 
@@ -127,6 +128,7 @@
 | `server/sources/import.ts` | JSON 清单、来源去重/版本、稳定主题归属、上传和重新定位 |
 | `server/sources/http.ts` | 原件流式返回、下载、Range 和系统打开操作 |
 | `server/sources/jobs.ts` | 提取排队、恢复、Worker 生命周期、超时与状态更新 |
+| `server/sources/progress.ts` | 当前材料版本及最新任务的只读统计，按档案筛选且不重复计数 |
 | `server/sources/extract-worker.ts` | 隔离调用提取并返回结果/错误 |
 | `server/sources/extract.ts` | 文本、DOCX、PDF、OCR 提取及修订号保护的人工校订 |
 | `server/search/service.ts` | 档案、事实、材料及正文的搜索、筛选、摘要和定位 |
@@ -175,12 +177,14 @@
 | `tests/integration/runtime.test.ts` | 默认配置、环境覆盖、启动/停止及容器边界 |
 | `tests/integration/import.test.ts`、`import-integrity.test.ts`、`private-import.test.ts` | 合成导入、指纹、重复关系和组织后重导入；文件名不代表内含私人材料 |
 | `tests/integration/extraction.test.ts` | 支持格式、OCR、提取修订及并发保护 |
+| `tests/integration/extraction-progress.test.ts` | 进度去重/版本/认证/只读及按状态安全排队 |
 | `tests/integration/facts.test.ts` | 证据、确认、撤回和参考档案规则 |
 | `tests/integration/search.test.ts` | 文字、筛选、中文与特殊字符检索 |
 | `tests/integration/resume.test.ts`、`export.test.ts` | 事实约束、版本冻结、表述与 PDF/DOCX 内容 |
 | `tests/integration/backup.test.ts` | 完整备份、错误口令、不安全条目和新目录恢复 |
 | `tests/integration/wave-data.test.ts` | 非空分类与实际档案到阵列的数据映射 |
 | `tests/browser/onboarding.test.mjs`、`journey.test.mjs` | 空库入口及贯穿材料、事实、简历的用户流程 |
+| `tests/browser/extraction-progress.test.mjs` | 自动进度、失败重试、读取恢复、窄屏及退出后的轮询清理 |
 | `tests/browser/shell.test.mjs`、`search.test.mjs`、`detail.test.mjs` | 导航、检索、详情和键盘交互 |
 | `tests/browser/review.test.mjs`、`revisions.test.mjs`、`resume.test.mjs` | 待整理、修订、证据与简历编辑操作 |
 | `tests/browser/wave.test.mjs`、`wave-lifecycle.test.mjs` | 实际三维界面、选择、过渡与资源生命周期 |

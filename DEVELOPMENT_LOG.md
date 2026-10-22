@@ -1,5 +1,25 @@
 # Development log
 
+## 2026-10-22 — extraction progress
+
+- Added authenticated, non-cached snapshots of unique current-version materials,
+  scoped to the library or a dossier. Old job versions and earlier failed retries
+  do not contaminate current counts. No schema migration or file hashing on poll.
+- Added explicit pending-only enqueue and failed-only retry filters; validation
+  completes before jobs are created. Existing explicit re-extraction API remains
+  available and preserves human corrections.
+- Mounted/visible progress panels poll without overlapping requests, explain
+  failures and pause on hidden pages. Disposing cancels requests and timers.
+  Completed text and review reasons refresh without replacing unsaved statements.
+- Verified 49 integration tests, production build and all 11 browser suites in
+  two runs. The long run hit Chromium ERR_NO_BUFFER_SPACE before journey loaded;
+  journey, revisions, detail, wave and wave-lifecycle passed in a fresh browser.
+- Verified the actual production UI at desktop/mobile widths without mutation
+  requests. Upgrade preserved all 23 tables and configuration, and did not enqueue
+  pending private materials. Privacy scan: 935 public files, 27 markers, zero hits.
+- Added the progress browser suite to Windows CI alongside the UI shell. No
+  v0.1.0 release assets were replaced; original/evidence reading is a later slice.
+
 ## 2026-10-22 — current library identity
 
 - Added an authenticated, non-cached, read-only library identity endpoint derived

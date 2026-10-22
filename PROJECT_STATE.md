@@ -25,3 +25,18 @@ lifecycle suites. Live reconnection preserved all existing tables and config.
 Resume boundaries: confirmed version-pinned evidence, manual truth review,
 immutable resume versions. Keyword matching and wording rules are not an AI
 truth checker. Read TODO.md before continuing development.
+
+Current source also adds automatic extraction status for the whole library and
+the current dossier. Only explicit clicks queue pending work or retry a failed
+material; finished text and review reasons update in place without replacing
+unsaved statements or changing evidence versions. Counts are current-version
+material coverage, not estimated file percentages or completion times.
+
+Verification: 49/49 integration tests, production build and all 11 browser suites
+across two runs, including original wave and source-version regressions. The
+single long browser attempt hit Chromium ERR_NO_BUFFER_SPACE before the journey
+page loaded; journey and the remaining suites passed with a fresh browser.
+The live service shows progress without enqueueing pending work; all 23 existing
+tables and the local configuration matched their pre-upgrade snapshots. Public
+source privacy scan found zero matches for 27 private identity markers across
+935 files. The v0.1.0 downloads remain unchanged.

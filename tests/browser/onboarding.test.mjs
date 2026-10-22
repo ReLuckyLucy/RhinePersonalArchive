@@ -16,8 +16,15 @@ export async function run({page,baseURL,ctx}){
  await page.locator('[data-upload]').setInputFiles({name:'project-proof.txt',mimeType:'text/plain',buffer:Buffer.from('本人负责公开版合成项目的开发和测试。')});
  await page.locator('[data-source]').filter({hasText:'project-proof.txt'}).waitFor();
  assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get().n,1,'upload attaches to current dossier without placeholder');
- await page.getByRole('button',{name:'提取文字',exact:true}).click();
+ await page.locator('.statement-disclosure summary').click();
+ const statement=page.locator('.statement-form textarea');await statement.fill('尚未保存的补充陈述');
+ await page.getByRole('button',{name:'提取文字',exact:true}).click();await statement.focus();
  const deadline=Date.now()+5000;while(Date.now()<deadline&&!ctx.db.prepare("SELECT 1 FROM sources WHERE json_extract(data,'$.extractionState')='ready'").get())await new Promise(r=>setTimeout(r,30));assert.ok(ctx.db.prepare("SELECT 1 FROM sources WHERE json_extract(data,'$.extractionState')='ready'").get());
+ await page.locator('[data-source-state]').getByText('文字已提取',{exact:true}).waitFor();
+ await page.locator('.text-preview').getByText('本人负责公开版合成项目的开发和测试。',{exact:true}).waitFor();
+ assert.equal(await statement.inputValue(),'尚未保存的补充陈述');
+ assert.equal(await statement.evaluate(el=>document.activeElement===el),true,'background progress must preserve writing focus');
+ await statement.evaluate(el=>el.blur());
  await page.keyboard.press('/');await page.getByRole('searchbox').fill('本人负责公开版合成项目');
  await page.getByRole('option').filter({hasText:'原始材料'}).first().click();
  await page.locator('.text-preview').getByText('本人负责公开版合成项目的开发和测试。',{exact:true}).waitFor();
