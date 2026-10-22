@@ -1,0 +1,24 @@
+services:
+  archive:
+    build: .
+    image: rhine-personal-archive:0.1.0
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4317:4317"
+    environment:
+      RHINE_BIND_HOST: 0.0.0.0
+      RHINE_CONTAINER: "1"
+      RHINE_CONFIG_FILE: /app/runtime/config/config.json
+    volumes:
+      - library:/app/runtime/library
+      - backups:/app/runtime/backups
+      - config:/app/runtime/config
+    shm_size: 256mb
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  library:
+  backups:
+  config:

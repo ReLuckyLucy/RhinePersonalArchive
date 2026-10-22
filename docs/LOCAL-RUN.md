@@ -1,0 +1,155 @@
+# 本机运行与使用
+
+## 选择运行方式
+
+Windows 便携版适合直接使用；源码适合开发或自行构建；Docker 适合已有容器环境。三种方式运行同一应用，默认空库，不附带个人材料。
+
+便携版解压到可写目录，双击 `启动档案.cmd`。包内 Node、依赖、OCR 和 Chromium 已配齐，无需安装 Node。通过 `停止档案.cmd` 停止服务。源码用 `npm start` 和 `npm stop`。默认地址 [http://127.0.0.1:4317](http://127.0.0.1:4317)，请使用该地址而非 `localhost`，以符合本机会话 Host 校验。
+
+重复启动校验应用与实例标识；端口被其他程序占用时报告错误。停止入口只停止核对过的本应用。关闭网页不会停止服务；重新启动恢复未完成的提取队列。
+
+## 从源码准备
+
+安装 Node.js `>=24.10.0 <25`，在项目根目录运行：
+
+```sh
+npm ci
+npm run setup
+npm run build
+npm start
+```
+
+`npm ci` 按锁文件安装依赖并执行 rolling-number 本地修补。`setup` 复制中文、英文 OCR 数据并安装配套 Playwright Chromium。首次准备需要网络，之后日常提取与导出使用本地资源。Linux 缺少浏览器系统库时，可在允许安装系统包的环境运行：
+
+```sh
+node scripts/prepare-local-assets.mjs --browsers --with-deps
+```
+
+正式入口提供 `dist/`；`npm run dev` 由同一服务器挂载 Vite。两者不能占用同一端口。Node SQLite 可能显示实验性提示，升级运行时前先备份和测试。
+
+## 配置
+
+优先级为**环境变量 → 保存 JSON → 默认值**。`RHINE_CONFIG_FILE` 选择配置，默认应用根目录的 `runtime/config.json`。环境变量相对路径从应用根目录解析。保存的 JSON 须含全部字段；手工填写时用本机绝对路径：
+
+```json
+{
+  "libraryRoot": "D:/RhineArchive/library",
+  "backupDirectory": "D:/RhineArchive/backups",
+  "port": 4317,
+  "assetDirectory": "D:/RhineArchive/ocr",
+  "browserDirectory": "D:/RhineArchive/browsers"
+}
+```
+
+示例路径请替换为自己的目录，JSON 中 `/` 可避免反斜杠转义。默认各目录为 `runtime/library`、`runtime/backups`、`runtime/ocr`、`runtime/browsers`，端口 `4317`。首次打开库创建所需目录和数据库。
+
+| 变量 | 对应字段或作用 |
+| --- | --- |
+| `RHINE_CONFIG_FILE` | JSON 配置路径 |
+| `RHINE_LIBRARY_ROOT` | `libraryRoot` |
+| `RHINE_BACKUP_DIRECTORY` | `backupDirectory` |
+| `RHINE_ASSET_DIRECTORY` | `assetDirectory`，OCR 语言资源 |
+| `RHINE_BROWSER_DIRECTORY` | `browserDirectory` |
+| `RHINE_PORT` | `port`，整数 `1024`–`65535` |
+| `RHINE_BIND_HOST` | 默认 `127.0.0.1`，容器使用 `0.0.0.0` |
+
+PowerShell 示例，变量对当前窗口启动的应用生效：
+
+```powershell
+$env:RHINE_LIBRARY_ROOT = "D:/RhineArchive/library"
+$env:RHINE_BACKUP_DIRECTORY = "D:/RhineArchive/backups"
+$env:RHINE_PORT = "4317"
+npm start
+```
+
+停止时在相同配置的窗口执行 `npm stop`。GUI 可修改资料库和备份目录：资料库须已存在且可写，均为本机绝对路径，不接受 UNC 网络路径，备份须在库外。换库后服务重启，稍后刷新。若环境变量覆盖字段，保存配置不会取消覆盖，应调整变量再重启。
+
+日志与 `instance.json` 跟随配置文件所在目录，默认 `runtime/service.log`、`runtime/instance.json`。配置记录路径，不记录备份口令，不应提交到公共仓库。
+
+## 资料库布局
+
+```text
+library/
+  .rhine-archive/
+    library.sqlite          # 档案、来源、事实修订、简历、任务与设置
+    exports/                # 成功导出的简历文件
+  用户补充/                  # 上传文件与本人陈述
+  材料/                      # 可选：自行整理的原件
+  索引/catalog.json         # 可选：导入清单
+```
+
+SQLite 运行时可能生成 `-wal`、`-shm`，不要在服务运行时单独复制或删除。日常资料与备份不进入源码、镜像或发布包。默认库不是加密盘，静态保密应结合系统磁盘加密和访问权限。
+
+## 从空库开始
+
+1. 新建档案，填类型、名称、角色和已知信息。日期精度可选未知、年、年月、年月日；只知道年时不要补月。保存后返回目录，选卡片并读取。
+2. “证明材料”→“添加材料”，上传文件。上传复制到库内，删除库外原文件不影响上传副本。也可保存本人陈述，如实标记证据性质。
+3. 点击“提取文字”，排队时可继续浏览；完成后重新打开材料。待整理页有批量提取。用“校对提取文字”修订识别结果，不改原件。
+4. 在个人贡献中新增事实，写明归属，勾选证明字段，选择来源、具体位置、摘录和证据等级。保存后另行确认。事实修改或合并后需重新核对。
+5. 简历工作台选已确认事实、栏目顺序和个人信息，编辑投递表述。关键词辅助只是提示；新增数字、角色或技术名称应回原事实修订并确认。
+6. “保存并预览”保存草稿，处理阻断提示后“保存为版本”，再导出。旧版本不随事实变化；目标页数不会截掉超长文字，实际分页以 PDF 为准。
+7. 创建完整备份并验证恢复，见[数据恢复](DATA-RECOVERY.md)。
+
+未保存内容只在当前页面会话保留，刷新或关闭前请保存。已保存记录在 SQLite 中，不依赖网页缓存。
+
+## 浏览和整理
+
+阵列可自由平面拖动、转弯、惯性滑行；滚轮/上下键切档，左右键/分类按钮切分类。读取后看侧面正文，Esc 或“返回档案”归位。搜索支持档案、事实和已提取正文；`/` 打开，上下键选择、Enter 读取、Esc 关闭。输入框里的 `/` 正常输入。
+
+收藏不复制档案。归档暂时收起，合并将来源和事实归到目标，并归档原档案；相关事实需重新确认。参考档案不要求个人角色或个人事实，也不能直接确认成个人经历。减少动态效果简化波浪和惯性；保留三维主场景，不提供独立模型拆解查看器。
+
+## JSON 清单导入
+
+清单放在当前库内，点击“导入已有资料”，输入如 `索引/catalog.json`。顶层可为数组或 `{ "records": [...] }`，最多十万条。
+
+| 字段 | 用途 |
+| --- | --- |
+| `id` | 清单内稳定标识，建议填写且保持不变 |
+| `archiveRel` | 相对资料库根目录的材料路径；也接受 `relativePath` |
+| `subject` | 主题/初始标题，同一清单的主题用于归组 |
+| `category` | 分类文字，用于推断类型 |
+
+类别含教育/学籍、工作/实习、荣誉/竞赛/奖、科研/知识产权、志愿/组织、参考/模板时分别归类，其他默认项目。之后可人工调整。将 [catalog.json](../examples/catalog.json) 和 [project-proof.txt](../examples/project-proof.txt) 复制到库根目录，导入 `catalog.json` 可试用。
+
+`archiveRel` 不相对清单文件夹。拒绝库外路径和不安全链接；缺失/读取失败列入报告。相同内容按指纹登记，原件变动形成新版本，来源关系保留。改名、合并、归档后重复导入沿用稳定归属；历史归属歧义报告 `AMBIGUOUS_TOPIC`，需要人工核对。清单中历史“已核验”不替代本库确认。
+
+## 格式与处理上限
+
+支持 UTF-8 `txt/md/csv/json`、DOCX 原始文字、PDF 文字与扫描 OCR、`png/jpg/jpeg/webp/bmp/tif/tiff` 图片 OCR。OCR 为简体中文和英文。其他格式可登记下载，不承诺提取；旧 `.doc`、电子表格、压缩包没有专用解析器。
+
+单文件上传最多 512 MiB；自动提取最多 100 MiB、300 秒；PDF 最多 500 页，OCR 页面最多 2400 万像素。复杂版式、表格、手写和低清扫描可能丢结构或误识别，需人工校对。DOCX 导出可编辑，不保证各办公软件分页一致。
+
+## Docker 运行
+
+```sh
+docker compose up --build -d
+docker compose ps
+docker compose logs -f archive
+```
+
+服务名 `archive`，镜像 `rhine-personal-archive:0.1.0`。端口为 `127.0.0.1:4317:4317`，用 [http://127.0.0.1:4317](http://127.0.0.1:4317) 访问。容器设置 `RHINE_BIND_HOST=0.0.0.0`、`RHINE_CONTAINER=1`，不构成远程多用户认证。
+
+| 命名卷 | 容器位置 | 内容 |
+| --- | --- | --- |
+| `library` | `/app/runtime/library` | 原件与 `.rhine-archive` |
+| `backups` | `/app/runtime/backups` | 加密备份 |
+| `config` | `/app/runtime/config` | 配置与实例记录 |
+
+配置文件 `/app/runtime/config/config.json`。浏览器在 `/app/runtime/browsers`，OCR 在 `/app/runtime/ocr`，随镜像准备。容器以 `node` 用户运行；改为绑定挂载时宿主目录须允许写入。GUI 填容器路径，不填宿主盘符。
+
+容器内“打开原件”不能启动宿主软件，使用预览或下载。重建保留命名卷；`docker compose down` 不删卷，`down -v` 会删除。升级迁移前创建备份并导出容器之外：
+
+```sh
+docker compose cp archive:/app/runtime/backups ./backup-export
+```
+
+恢复时先将备份复制到备份卷，刷新页面的备份列表并选择文件，填写容器内的新目标路径。新目标须不存在且处于持久化位置，例如 `/app/runtime/library/restored-library`。验证后切换，并确认备份目录仍在新库外。各项实测结果见 [PROJECT_STATE.md](../PROJECT_STATE.md)。
+
+## 升级
+
+1. 创建加密备份，保存口令，并完成一次恢复验证。
+2. 停止旧实例，保留库和配置。便携版解压到新目录；源码安装锁定依赖，重新 `setup`、`build`。
+3. 新实例连接原库与库外备份目录，核对档案、原件、事实和简历。默认相对路径随解压目录变化，需要明确设置。
+4. Docker 先备份，再重建并沿用命名卷；不要删卷更新。
+
+数据库迁移在开库时执行。回退代码不保证能回退数据；需要时将升级前备份恢复到新目录验证。不要让两个实例同时操作同一库。

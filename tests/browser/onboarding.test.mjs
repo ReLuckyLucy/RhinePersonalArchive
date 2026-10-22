@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+
+export async function run({page,baseURL,ctx}){
+ await page.addInitScript(()=>sessionStorage.setItem('rhine:entered','1'));
+ await page.goto(baseURL);
+ await page.getByRole('button',{name:'创建第一份档案',exact:true}).click();
+ await page.getByLabel('档案名称',{exact:true}).fill('公开版合成项目');
+ await page.getByLabel('经历概述',{exact:true}).fill('合成测试资料，用于验证从空库开始。');
+ await page.getByRole('button',{name:'保存档案',exact:true}).click();
+ await page.getByText('已保存',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
+ await page.locator('[data-read]').click();
+ await page.getByRole('button',{name:'证明材料',exact:true}).click();
+ await page.locator('[data-upload]').setInputFiles({name:'project-proof.txt',mimeType:'text/plain',buffer:Buffer.from('本人负责公开版合成项目的开发和测试。')});
+ await page.locator('[data-source]').filter({hasText:'project-proof.txt'}).waitFor();
+ assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get().n,1,'upload attaches to current dossier without placeholder');
+ await page.getByRole('button',{name:'提取文字',exact:true}).click();
+ const deadline=Date.now()+5000;while(Date.now()<deadline&&!ctx.db.prepare("SELECT 1 FROM sources WHERE json_extract(data,'$.extractionState')='ready'").get())await new Promise(r=>setTimeout(r,30));assert.ok(ctx.db.prepare("SELECT 1 FROM sources WHERE json_extract(data,'$.extractionState')='ready'").get());
+ await page.keyboard.press('/');await page.getByRole('searchbox').fill('本人负责公开版合成项目');
+ await page.getByRole('option').filter({hasText:'原始材料'}).first().click();
+ await page.locator('.text-preview').getByText('本人负责公开版合成项目的开发和测试。',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
+ await writeFile(join(ctx.libraryRoot,'catalog-proof.txt'),'第二个合成项目材料');
+ await writeFile(join(ctx.libraryRoot,'custom-catalog.json'),JSON.stringify({records:[{id:'public-second',archiveRel:'catalog-proof.txt',subject:'第二个合成项目',category:'项目作品'}]}));
+ await page.getByRole('button',{name:'导入清单',exact:true}).click();
+ await page.getByLabel('清单相对路径',{exact:true}).fill('custom-catalog.json');
+ await page.getByRole('button',{name:'开始导入',exact:true}).click();
+ await page.getByRole('dialog').waitFor({state:'detached'});
+ assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get().n,2);
+ assert.equal(ctx.db.prepare('SELECT count(*) n FROM sources').get().n,2);
+}

@@ -1,0 +1,48 @@
+name: Verify standalone release
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24.10.0
+          cache: npm
+      - run: npm ci
+      - run: npm run setup
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:e2e
+      - run: npm run package:source
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24.10.0
+      - run: docker build -t rhine-validation .
+      - run: docker run -d --name rhine-validation --init -e RHINE_PORT=14317 -p 127.0.0.1:14317:14317 -v rhine-validation-library:/app/runtime/library -v rhine-validation-backups:/app/runtime/backups -v rhine-validation-config:/app/runtime/config rhine-validation
+      - name: Wait for local service
+        run: |
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:14317/api/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs rhine-validation
+          exit 1
+      - run: node scripts/smoke-app.mjs http://127.0.0.1:14317
+      - run: docker restart rhine-validation
+      - name: Verify persistence
+        run: |
+          sleep 5
+          node scripts/smoke-app.mjs http://127.0.0.1:14317 --persist
+      - if: always()
+        run: docker logs rhine-validation

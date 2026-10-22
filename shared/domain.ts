@@ -1,0 +1,13 @@
+import type { z } from 'zod';
+import type { dossierInput,profileInput,partialDate,dateRange,factInput,evidenceLink,resumeDraftInput } from './schemas.ts';
+export type Id=string;export type Revision=number;
+export type PartialDate=z.infer<typeof partialDate>;export type DateRange=z.infer<typeof dateRange>;
+export type DossierInput=z.infer<typeof dossierInput>;export type Dossier=Omit<DossierInput,'id'>&{id:Id;revision:Revision;archivedAt:string;visitedAt?:string};
+export type DossierFilter={kind?:string;status?:string;favorite?:boolean;sort?:'recent'|'date'};
+export type ProfileInput=z.infer<typeof profileInput>;export type Profile=ProfileInput&{id:'main';revision:Revision};
+export type EvidenceLink=z.infer<typeof evidenceLink>;export type FactInput=z.infer<typeof factInput>;
+export type Fact=Omit<FactInput,'id'>&{id:Id;status:'draft'|'review'|'confirmed'|'withdrawn';revision:Revision;confirmedAt:string|null};
+export type Source={id:Id;relativePath:string;hash:string;version:number;kind:string;bytes:number;availability:'available'|'missing'|'changed';extractionState:'pending'|'queued'|'running'|'ready'|'failed'|'unsupported';name:string};
+export type ResumeDraftInput=z.infer<typeof resumeDraftInput>;export type ResumeDraft=Omit<ResumeDraftInput,'id'>&{id:Id;revision:Revision};
+export type Result<T>={ok:true;data:T}|{ok:false;error:{code:string;message:string;fields?:Record<string,string>}};
+export type LocalConfig={libraryRoot:string;backupDirectory:string;port:number;assetDirectory:string;browserDirectory:string};

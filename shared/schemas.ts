@@ -1,0 +1,20 @@
+import { z } from 'zod';
+export const partialDate=z.object({value:z.string().nullable(),precision:z.enum(['year','month','day','unknown'])}).strict().refine(d=>{
+ if(d.precision==='unknown')return d.value===null;
+ if(!d.value)return false;
+ const pattern={year:/^\d{4}$/,month:/^\d{4}-\d{2}$/,day:/^\d{4}-\d{2}-\d{2}$/}[d.precision];
+ if(!pattern.test(d.value))return false;
+ const full=d.value+(d.precision==='year'?'-01-01':d.precision==='month'?'-01':'');const date=new Date(full+'T00:00:00Z');
+ return Number(d.value.slice(0,4))>0&&!isNaN(+date)&&date.toISOString().slice(0,10)===full;
+},'请输入真实日期，未知日期请留空');
+export const dateRange=z.object({start:partialDate,end:partialDate,ongoing:z.boolean()}).strict().refine(d=>!d.ongoing||d.end.precision==='unknown','进行中的经历不填写结束时间');
+const text=z.string().max(20000), short=z.string().max(500), nullable=short.nullable();
+export const dossierKind=z.enum(['education','work','project','award','research','volunteer','portfolio','reference']);
+const details={education:z.object({school:nullable.optional(),major:nullable.optional(),degree:nullable.optional()}).strict(),work:z.object({position:nullable.optional()}).strict(),project:z.object({technologies:z.array(short).max(100).optional()}).strict(),award:z.object({awardName:nullable.optional(),level:nullable.optional(),issuer:nullable.optional()}).strict(),research:z.object({outputType:nullable.optional(),status:nullable.optional(),authorship:nullable.optional()}).strict(),volunteer:z.object({organization:nullable.optional()}).strict(),portfolio:z.object({url:nullable.optional()}).strict(),reference:z.object({}).strict()};
+export const dossierInput=z.object({id:z.uuid().optional(),kind:dossierKind,title:short.min(1),aliases:z.array(short).max(100),dateRange,organization:short,role:short,summary:text,skills:z.array(short).max(100),typedDetails:z.record(z.string(),z.unknown()),favorite:z.boolean()}).strict().superRefine((d,ctx)=>{const r=details[d.kind].safeParse(d.typedDetails);if(!r.success)ctx.addIssue({code:'custom',path:['typedDetails'],message:'类型字段无效'});});
+export const profileInput=z.object({name:short,email:z.union([z.email(),z.literal('')]),phone:short,location:short,headline:short}).strict();
+export const revisionSchema=z.number().int().positive().nullable();
+export const evidenceLink=z.object({sourceId:z.uuid(),sourceVersion:z.number().int().positive(),locator:z.object({type:z.enum(['page','paragraph','region','statement']),index:z.number().int().nonnegative().optional(),label:short.optional()}).strict(),excerpt:text,grade:z.enum(['A','B','C','D','unassessed'])}).strict();
+export const factInput=z.object({id:z.uuid().optional(),dossierId:z.uuid(),text:text.min(1),ownership:z.enum(['personal','team']),metrics:z.array(short),fieldValues:z.record(z.string(),z.union([z.string(),z.array(z.string()),partialDate])),evidenceLinks:z.array(evidenceLink).max(100)}).strict();
+export const profileSelection=z.array(z.enum(['name','email','phone','location','headline']));
+export const resumeDraftInput=z.object({id:z.uuid().optional(),roleTitle:short,jobDescription:text,profileSelection,sections:z.array(z.object({title:short,factIds:z.array(z.uuid())}).strict()),selectedFactRevisions:z.record(z.uuid(),z.number().int().positive()),editedText:z.record(z.uuid(),text),targetPages:z.union([z.literal(1),z.literal(2)])}).strict();

@@ -1,0 +1,30 @@
+[
+  {
+    "sourceCommit": "12cc5e4",
+    "source": "src/brand.ts",
+    "target": "src/ui/brand.ts",
+    "sourceSha256": "36f88bda7e6d92338245581613585a75c58982669a30a5751bf8f6614143525a",
+    "targetSha256": "81f226311c30e10288b88e8b8f2ea73cec0a919fe2598424e3c6e59c998498d4"
+  },
+  {
+    "sourceCommit": "12cc5e4",
+    "source": "src/ui-transitions.ts",
+    "target": "src/ui/transitions.ts",
+    "sourceSha256": "dc6cb8fb0c5a8ad83a8ead27e7e67f8261b3b8fcf78e4daba5d77d14c8b34246",
+    "targetSha256": "7626a50473e57b5a6d387cb3f8328f2bfc9123f6dfe165a394cd4a686d7466c6"
+  },
+  {
+    "sourceCommit": "12cc5e4",
+    "source": "src/html.ts",
+    "target": "src/ui/html.ts",
+    "sourceSha256": "2ba5ade6bdeef34d5328844bf2b4190c3cefe3d81f90cc78e85ea0abd81d2fad",
+    "targetSha256": "e43703bfe99fca233f2199f544d43682c7d35fcfe117d691bd6aabd10912f913"
+  },
+  {
+    "sourceCommit": "12cc5e4",
+    "source": "src/fonts.css",
+    "target": "src/fonts.css",
+    "sourceSha256": "63d5271b9154a55e23a26e1a5ec73ffa9e6874d56db4c6a629c88175d50fa975",
+    "targetSha256": "6a8c2d8b6bf8cdb335bf0773fa657f4513ec78ba546d0f9e52f7bdb3ff97ce09"
+  }
+]

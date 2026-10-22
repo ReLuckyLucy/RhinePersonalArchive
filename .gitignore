@@ -1,0 +1,26 @@
+# Private runtime data and local configuration never belong in source control.
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+release/
+runtime/
+.rhine-archive/
+data/
+backups/
+exports/
+previews/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.growth
+public/fonts/novecento/
+verification/private/
+# Historical local working records are not part of the public distribution.
+/TASKS.md
+/docs/superpowers/
+/verification/
+/scripts/verify-private-import.mjs
+*.log

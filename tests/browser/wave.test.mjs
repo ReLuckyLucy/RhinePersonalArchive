@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import {saveDossier} from '../../server/archive/repository.ts';
+export async function run({page,baseURL,ctx}){
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ for(const [kind,title] of [['project','项目甲'],['project','项目乙'],['work','工作经历'],['education','教育经历']])saveDossier(ctx,{kind,title,aliases:[],dateRange:{start:{value:null,precision:'unknown'},end:{value:null,precision:'unknown'},ongoing:false},organization:'',role:'',summary:'真实档案映射测试',skills:[],typedDetails:{},favorite:false},null);
+ await page.addInitScript(()=>sessionStorage.setItem('rhine:entered','1'));
+ await page.goto(baseURL);
+ await page.locator('.wave-scene canvas').waitFor({timeout:5000});
+ await page.waitForFunction(()=>document.querySelector('.wave-scene')?.dataset.ready==='true',null,{timeout:60000});
+ const stats=()=>page.locator('.wave-scene').evaluate(el=>JSON.parse(el.dataset.stats));
+ await page.locator('[data-wave-category="project"]').click();
+ await page.waitForFunction(()=>JSON.parse(document.querySelector('.wave-scene').dataset.stats).selectedLane===2);
+ const before=await stats();assert.ok(before.archiveCount>0);assert.ok(before.drawCalls>0);
+ await page.getByRole('button',{name:'下一份档案',exact:true}).click();
+ await page.waitForTimeout(300);
+ assert.notDeepEqual((await stats()).selectedCell,before.selectedCell);
+ assert.ok((await stats()).pulses.length>0,'selection must produce the original wave');
+ await page.waitForTimeout(1300);
+ assert.equal(await page.evaluate(()=>document.elementFromPoint(780,400).tagName),'CANVAS');
+ await page.mouse.move(780,400);await page.mouse.down();await page.mouse.move(960,490,{steps:8});await page.mouse.up();
+ await page.waitForFunction(()=>JSON.parse(document.querySelector('.wave-scene').dataset.stats).archiveMomentum!==null,null,{timeout:3000});
+ const coast=await stats();await page.waitForTimeout(180);
+ assert.notDeepEqual((await stats()).archiveMomentum?.value,coast.archiveMomentum.value,'released pointer continues actual momentum');
+ const canvas=await page.locator('canvas').elementHandle();
+ await page.getByRole('button',{name:'读取档案',exact:true}).click();
+ await page.getByRole('button',{name:'编辑档案',exact:true}).waitFor();
+ await page.waitForFunction(()=>JSON.parse(document.querySelector('.wave-scene').dataset.stats).modelPosition[1]>-1,null,{timeout:15000});
+ assert.equal(await canvas.evaluate(el=>el===document.querySelector('.wave-scene canvas')),true,'detail keeps the same WebGL scene');
+ await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('.wave-stage').dataset.mode==='archive');
+ assert.equal(await canvas.evaluate(el=>el===document.querySelector('.wave-scene canvas')),true,'return animation keeps the scene');
+ await page.keyboard.press('/');await page.getByRole('searchbox').fill('教育经历');await page.getByRole('option').filter({hasText:'教育经历'}).first().click();
+ await page.locator('.wave-document h1').filter({hasText:'教育经历'}).waitFor();
+ await page.waitForFunction(()=>JSON.parse(document.querySelector('.wave-scene').dataset.stats).selectedLane===0);
+ await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
+ await page.getByRole('button',{name:'简历工作台',exact:true}).click();assert.equal(await page.locator('.wave-scene canvas').count(),0);
+ await page.getByRole('button',{name:'个人档案',exact:true}).click();await page.locator('.wave-scene canvas').waitFor();
+ await page.waitForFunction(()=>document.querySelector('.wave-scene')?.dataset.ready==='true');
+ await page.getByRole('button',{name:'设置',exact:true}).click();await page.getByRole('button',{name:'切换明暗配色'}).click();await page.getByLabel('减少动态效果',{exact:true}).check();
+ await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'});
+ await page.waitForTimeout(400);assert.equal((await stats()).idleGain,0);assert.equal((await stats()).archiveMomentum,null);
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ for(const viewport of [{width:1920,height:1080},{width:390,height:844},{width:334,height:568}]){await page.setViewportSize(viewport);await page.waitForTimeout(400);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.screenshot({path:`verification/private/screenshots/wave-tested-${viewport.width}.png`});}
+ assert.deepEqual(errors,[]);
+}

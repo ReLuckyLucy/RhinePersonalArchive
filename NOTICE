@@ -1,0 +1,17 @@
+Rhine Personal Archive
+
+This project is a local, single-user personal dossier, evidence review and resume
+workspace. It includes interface and Three.js scene work derived from RhineLabUI.
+The upstream MIT copyright and license text is preserved in LICENSE.
+
+MiSans font files and related metadata retain their own notices and license files
+under public/fonts. Other bundled third-party dependencies and browser resources
+remain subject to their respective licenses. The project MIT license does not
+replace those resource licenses.
+
+Source attribution and adaptation records are documented in
+docs/SOURCE-ATTRIBUTION.md, docs/source-fingerprints.json and
+docs/rhine-scene-fingerprints.json.
+
+Release packages do not include a personal library, private originals or a claim
+that any imported biographical material has been verified.
