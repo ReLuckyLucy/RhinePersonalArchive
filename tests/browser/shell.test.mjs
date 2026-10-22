@@ -2,9 +2,14 @@ import assert from 'node:assert/strict';
 export async function run({ page, baseURL }) {
   const requests = [];
   page.on('request', req => requests.push(req.url()));
-  await page.goto(baseURL);
-  await page.getByRole('button', { name:'跳过入场' }).click();
-  await page.getByRole('button', { name:'跳过入场' }).waitFor({state:'detached'});
+  await page.goto(baseURL, { waitUntil:'domcontentloaded' });
+  const boot = page.getByRole('button', { name:'跳过入场' });
+  // The short entry also ends automatically after one second; a slow page load
+  // may finish it before the test can click. Only accept the error if it ended.
+  await boot.click({ timeout:1500 }).catch(async error => {
+    if (await boot.count()) throw error;
+  });
+  await boot.waitFor({state:'detached'});
   assert.equal(await page.getByRole('button', { name: '检索档案', exact: true }).count(), 1, 'archive search entry must be accessible');
   assert.equal(await page.locator('canvas').count(), 0);
   await page.getByRole('button', { name: '检索档案', exact: true }).click();
