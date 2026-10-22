@@ -1,5 +1,29 @@
 # Development log
 
+## 2026-10-22 — usability entry points
+
+- Preserved the wave scene and its motion. Utility labels stay visible across
+  narrow layouts; the homepage exposes new dossier and material upload actions.
+  Catalog import and archived browsing use a keyboard-accessible native menu.
+- Added a single-file upload dialog that explicitly selects the owner, uses the
+  existing upload API, retains choices on failure and opens the materials tab on
+  success. Empty libraries route to dossier creation without placeholder records.
+- Review reasons now link to role/date fields or facts/materials tabs; returning
+  restores scroll and keyboard context. Hidden archive tools become inert in
+  detail mode. Library management expands/focuses the existing directory form.
+- Verified 49 integration tests, build and all 12 browser suites in two groups;
+  shell, full workflow, evidence version pinning and wave lifecycle included.
+  The initial concurrent browser-test attempt collided on Vite's HMR port; browser
+  groups were then run sequentially with independent temporary libraries.
+- Public source scan: 939 files and 27 private identity markers, zero hits.
+  Actual local UI showed the new controls; configuration and schema were stable.
+  A whole-database hash comparison differed during concurrent page navigation,
+  and is not reported as an unchanged-data pass. Live acceptance submitted no
+  material, fact, resume or settings writes; no database migration was required.
+- This completes the entry/navigation slice. Reading layout, compact extraction,
+  reference wording and resume stage/export work remain visible in TODO.md.
+  Published v0.1.0 downloads are unchanged.
+
 ## 2026-10-22 — extraction progress
 
 - Added authenticated, non-cached snapshots of unique current-version materials,

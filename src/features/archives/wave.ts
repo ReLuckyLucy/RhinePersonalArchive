@@ -10,6 +10,7 @@ import {setDossiers,records,archiveColumns,columnFiles,fileLocation} from '../..
 import {wrap,type ArchiveNavigation} from '../../rhine/archive-loop';
 import {mountDetail} from './detail';
 import type {Hit} from '../search/modal';
+import type {DossierLocation} from './navigation';
 
 type Actions={read(id:string):void;back():void;edit(d:Dossier):void;changed():void};
 const label=(kind:string)=>categories.find(([key])=>key===kind)?.[1]??'参考资料';
@@ -18,7 +19,7 @@ export const waveKey=(data:Dossier[])=>data.map(d=>`${d.id}:${d.kind}`).join('|'
 
 export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState,actions:Actions){
  setDossiers(data);
- root.innerHTML=`<section class="wave-stage" data-mode="archive" aria-label="动态个人档案阵列"><div class="wave-scene"></div><div class="wave-heading"><span class="eyebrow">PERSONAL ARCHIVE / 私人资料库</span><h1>个人档案<span> / </span><small>${String(data.length).padStart(2,'0')}</small></h1><p>每一份经历，都有迹可循。</p></div><div class="wave-tools"><button class="text-button" data-action="import" aria-label="导入清单">导入清单</button><button class="text-button" data-action="archived">已归档</button><button class="text-button" data-action="new-dossier" aria-label="新建档案">新建档案 ＋</button></div><div class="wave-loading" role="status">正在载入档案阵列…</div><section class="wave-selection" aria-label="当前档案"><div class="wave-meta"></div><h2></h2><p></p><button class="solid-button" aria-label="读取档案" data-wave-read data-read="current">读取档案 <span>↗</span></button></section><div class="wave-bottom"><div class="wave-navigation"><button aria-label="上一份档案" data-wave-step="-1">↑</button><div class="wave-index" aria-label="当前分类档案"></div><button aria-label="下一份档案" data-wave-step="1">↓</button><span class="wave-count"></span></div><nav class="wave-categories" aria-label="档案分类"></nav><p class="wave-help">拖动浏览 · 滚轮切档 · 方向键切换 · Enter 读取</p></div><section class="wave-document" aria-label="个人档案详情" hidden tabindex="-1"></section></section>`;
+ root.innerHTML=`<section class="wave-stage" data-mode="archive" aria-label="动态个人档案阵列"><div class="wave-scene"></div><div class="wave-heading"><span class="eyebrow">PERSONAL ARCHIVE / 私人资料库</span><h1>个人档案<span> / </span><small>${String(data.length).padStart(2,'0')}</small></h1><p>每一份经历，都有迹可循。</p></div><div class="wave-tools"><button class="solid-button" data-action="new-dossier" aria-label="新建档案">＋ 新建档案</button><button class="outline-button" data-action="add-material">添加材料</button><details class="archive-more"><summary>更多操作</summary><div><button class="text-button" data-action="import" aria-label="导入清单">导入清单</button><button class="text-button" data-action="archived">已归档</button></div></details></div><div class="wave-loading" role="status">正在载入档案阵列…</div><section class="wave-selection" aria-label="当前档案"><div class="wave-meta"></div><h2></h2><p></p><button class="solid-button" aria-label="读取档案" data-wave-read data-read="current">读取档案 <span>↗</span></button></section><div class="wave-bottom"><div class="wave-navigation"><button aria-label="上一份档案" data-wave-step="-1">↑</button><div class="wave-index" aria-label="当前分类档案"></div><button aria-label="下一份档案" data-wave-step="1">↓</button><span class="wave-count"></span></div><nav class="wave-categories" aria-label="档案分类"></nav><p class="wave-help">拖动浏览 · 滚轮切档 · 方向键切换 · Enter 读取</p></div><section class="wave-document" aria-label="个人档案详情" hidden tabindex="-1"></section></section>`;
  const stage=root.querySelector<HTMLElement>('.wave-stage')!,host=root.querySelector<HTMLElement>('.wave-scene')!,panel=root.querySelector<HTMLElement>('.wave-document')!,loading=root.querySelector<HTMLElement>('.wave-loading')!;
  const heading=root.querySelector<HTMLElement>('.wave-selection h2')!,selection=root.querySelector<HTMLElement>('.wave-selection')!;
  let scene:ArchiveScene|undefined,alive=true,frame=0,detailId:string|undefined,detailDispose:(()=>void)|undefined,closeTimer:ReturnType<typeof setTimeout>|undefined;
@@ -50,18 +51,18 @@ export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState
   if(axis==='row'){const files=columnFiles(pos.lane);select(files[wrap(files.indexOf(index)+direction,files.length)],{axis,direction});}
   else{const lane=wrap(pos.lane+direction,archiveColumns.length),files=columnFiles(lane);select(files.find(i=>records[i].id===memory.get(archiveColumns[lane]))??files[0],{axis,direction});}
  };
- const showDetail=(id?:string,hit?:Hit)=>{
-  const hitKey=JSON.stringify(hit??null);
+ const showDetail=(id?:string,hit?:Hit,location?:DossierLocation)=>{
+  const hitKey=JSON.stringify([hit??null,location??null]);
   if(detailId===id&&(!id||detailHitKey===hitKey))return;
   detailHitKey=hitKey;
   if(closeTimer)clearTimeout(closeTimer);
   detailDispose?.();detailDispose=undefined;detailId=id;
   stage.dataset.mode=id?'detail':'archive';
-  selection.inert=!!id;root.querySelector<HTMLElement>('.wave-bottom')!.inert=!!id;
+  selection.inert=!!id;root.querySelector<HTMLElement>('.wave-bottom')!.inert=!!id;root.querySelector<HTMLElement>('.wave-tools')!.inert=!!id;
   if(id){
    const next=records.findIndex(d=>d.id===id);if(next>=0&&next!==index)select(next);
    scene?.setMode('detail');panel.hidden=false;panel.inert=false;
-   detailDispose=mountDetail(panel,id,actions.back,actions.edit,actions.changed,hit);
+   detailDispose=mountDetail(panel,id,actions.back,actions.edit,actions.changed,hit,location);
    panel.focus({preventScroll:true});
   }else{
    scene?.setMode('archive');panel.inert=true;
@@ -109,6 +110,8 @@ export function mountWaveArchive(root:HTMLElement,data:Dossier[],state:ViewState
  };
  const key=(e:KeyboardEvent)=>{
   if(hasModal()||root.inert||(e.target instanceof HTMLElement&&e.target.closest('input,textarea,select,[contenteditable="true"]')))return;
+  const more=root.querySelector<HTMLDetailsElement>('.archive-more')!;
+  if(e.key==='Escape'&&more.open){e.preventDefault();more.open=false;more.querySelector<HTMLElement>('summary')!.focus();return;}
   if(detailId){if(e.key==='Escape'){e.preventDefault();actions.back();}return;}
   const moves:Record<string,['row'|'lane',number]>={ArrowUp:['row',-1],ArrowDown:['row',1],ArrowLeft:['lane',-1],ArrowRight:['lane',1]};
   if(moves[e.key]){e.preventDefault();step(...moves[e.key]);}

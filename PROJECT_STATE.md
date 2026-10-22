@@ -40,3 +40,18 @@ The live service shows progress without enqueueing pending work; all 23 existing
 tables and the local configuration matched their pre-upgrade snapshots. Public
 source privacy scan found zero matches for 27 private identity markers across
 935 files. The v0.1.0 downloads remain unchanged.
+
+The first usability pass is implemented: visible Chinese utility labels, clear
+new/upload actions, an advanced actions menu, explicit material ownership,
+reason-specific review navigation with return focus/scroll, and direct library
+location management. It reuses existing import and edit APIs; no database schema
+or backend behavior changed. The reading and resume improvements in UX-REVIEW.md
+remain separate pending slices, tracked in TODO.md.
+
+Verification: 49 integration tests, production build and all 12 browser suites
+passed across two groups. Homepage/upload/review paths were checked at desktop
+and narrow widths, including failed-upload preservation and menu keyboard exit.
+Public source privacy scan: 939 files, 27 private identity markers, zero matches.
+The live UI was loaded and its new actions observed. Local configuration and
+schema matched the acceptance baseline; the whole-database hash changed during
+concurrent browsing, so full data immutability is not claimed for that live run.

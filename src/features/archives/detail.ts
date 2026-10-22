@@ -1,12 +1,13 @@
 import {editExtracted} from './text-editor';
 import {organizeDossier} from './organize';
 import {mountExtractionProgress,extractionLabels} from '../extraction/progress';
+import type {DossierLocation} from './navigation';
 import type {Dossier,Fact,Source} from '../../../shared/domain';
 import {categories} from '../../app/state';
 import {api,uploadFile} from '../../api/client';import {escapeHtml as esc} from '../../ui/html';import {renderPreview} from './preview';import {editFact} from '../review/editor';import type {Hit} from '../search/modal';import {detailFields} from './editor';
-export function mountDetail(root:HTMLElement,id:string,onBack:()=>void,onEdit:(d:Dossier)=>void,onChanged:()=>void,hit?:Hit){
+export function mountDetail(root:HTMLElement,id:string,onBack:()=>void,onEdit:(d:Dossier)=>void,onChanged:()=>void,hit?:Hit,location?:DossierLocation){
  let alive=true,preview:ReturnType<typeof renderPreview>|undefined,previewTrigger:HTMLElement|undefined,disposeProgress:(()=>void)|undefined,previewVersion:number|undefined;
- let tab=hit?.entityType==='fact'?'facts':hit?.sourceId?'sources':'overview';
+ let tab:string=location?.tab??(hit?.entityType==='fact'?'facts':hit?.sourceId?'sources':'overview');
  const load=async()=>{disposeProgress?.();disposeProgress=undefined;preview?.dispose();root.innerHTML='<p role="status">正在读取档案…</p>';try{
  const {dossier:d,sources,facts}=await api<{dossier:Dossier;sources:Source[];facts:Fact[]}>(`dossiers/${id}`);if(!alive)return;
  const start=d.dateRange.start.value,end=d.dateRange.end.value;
@@ -14,7 +15,7 @@ export function mountDetail(root:HTMLElement,id:string,onBack:()=>void,onEdit:(d
  const kind=categories.find(([key])=>key===d.kind)?.[1]??'参考资料';
  const confirmed=facts.filter(f=>f.status==='confirmed').length;
  root.innerHTML=`<div class="detail-top">
-  <button class="text-button" data-back aria-label="返回档案目录">← 返回档案</button>
+  <button class="text-button" data-back aria-label="${location?.fromReview?'返回待整理':'返回档案目录'}">← ${location?.fromReview?'返回待整理':'返回档案'}</button>
   <div class="detail-tools"><button class="text-button" data-favorite aria-pressed="${d.favorite}">${d.favorite?'取消收藏':'收藏档案'}</button><button class="text-button" data-organize>归档或合并</button><button class="outline-button" data-edit>编辑档案</button></div>
  </div><div class="detail-workspace"><section class="detail-body">
   <header class="dossier-heading"><span class="eyebrow">DOSSIER / ${esc(kind)}</span><h1>${esc(d.title)}</h1>

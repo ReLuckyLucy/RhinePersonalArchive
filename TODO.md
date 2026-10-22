@@ -1,5 +1,16 @@
 # Development TODO
 
+## Product usability — first pass
+
+- [x] Keep search, saved and settings labels visible at narrow widths.
+- [x] Expose new dossier / add material; move catalog import and archived browsing into more actions.
+- [x] Select an existing dossier before upload; retain the file and selection after failures.
+- [x] Link review reasons to role/date fields or facts/materials tabs; restore return context.
+- [x] Open and focus library location directly from its management entry.
+- [ ] Next pass: detail reading space, compact extraction status and original/evidence comparison.
+- [ ] Following pass: resume stage guidance and stable preview/export actions.
+- [ ] Adapt reference-dossier wording and secondary organization actions.
+
 ## Extraction progress
 
 - [x] Read-only current-version material counts, global and per dossier.

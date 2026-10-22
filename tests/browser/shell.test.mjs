@@ -35,6 +35,9 @@ export async function run({ page, baseURL,ctx }) {
   await libraryDialog.getByRole('button',{name:'管理资料位置 ↗',exact:true}).click();
   const settings=page.getByRole('dialog',{name:'设置',exact:true});await settings.waitFor();
   assert.equal(await libraryDialog.count(),0,'management must open after the identity dialog closes');
+  await settings.getByRole('textbox',{name:'资料库目录',exact:true}).waitFor();
+  assert.equal(await settings.locator('.data-settings').evaluate(el=>el.open),true,'management must expose its target');
+  await page.waitForFunction(()=>document.activeElement?.getAttribute('name')==='libraryRoot');
   await page.keyboard.press('Escape');await settings.waitFor({state:'detached'});
   assert.equal(await library.evaluate(el=>document.activeElement===el),true);
   await page.setViewportSize({width:390,height:844});await library.click();
@@ -42,6 +45,7 @@ export async function run({ page, baseURL,ctx }) {
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.screenshot({path:'verification/private/screenshots/library-mobile.png',fullPage:true});
   await page.keyboard.press('Escape');await libraryDialog.waitFor({state:'detached'});
+  for(const action of ['search','saved','settings'])assert.equal(await page.locator(`[data-action=${action}]>span`).isVisible(),true,'critical navigation needs visible text on narrow screens');
   await page.route('**/api/library',route=>route.fulfill({json:{ok:true,data:{name:'很长的演示资料库名称_'.repeat(6),directory:ctx.libraryRoot+'/资料位置测试'.repeat(24),dossierCount:0,archivedDossierCount:0,sourceCount:0}}}));
   await page.setViewportSize({width:334,height:568});await library.click();
   await libraryDialog.locator('[data-library-directory]').waitFor();
@@ -53,6 +57,12 @@ export async function run({ page, baseURL,ctx }) {
   await library.click();await libraryDialog.locator('[data-library-directory]').waitFor();
   await page.keyboard.press('Escape');await libraryDialog.waitFor({state:'detached'});
   assert.equal(await page.getByRole('button', { name: '检索档案', exact: true }).count(), 1, 'archive search entry must be accessible');
+  await page.getByRole('button',{name:'添加材料',exact:true}).click();
+  const materialDialog=page.getByRole('dialog',{name:'添加材料',exact:true});
+  await materialDialog.getByRole('button',{name:'先新建档案 →',exact:true}).click();
+  await page.getByLabel('档案名称',{exact:true}).waitFor();
+  assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get().n,0,'opening the upload/new flow must not create records');
+  await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
   assert.equal(await page.locator('canvas').count(), 0);
   await page.getByRole('button', { name: '检索档案', exact: true }).click();
   await page.getByRole('searchbox', { name: '检索档案' }).waitFor();

@@ -49,3 +49,12 @@ label{font-size:12px}input,select,textarea{color:var(--ink);font:inherit;backgro
 .extraction-progress button:disabled{opacity:.45;cursor:default}.extraction-progress[data-state=stale] .extraction-counts{opacity:.5}
 .extraction-message:empty,.extraction-activity:empty{display:none}
 @media(max-width:680px){.extraction-counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}.extraction-heading .outline-button{max-width:100%;white-space:normal}}
+
+/* Common actions remain readable across desktop and narrow panels. */
+.utility-nav button>span{display:inline}.utility-nav i{font-size:17px;font-style:normal;line-height:1}.utility-nav button[aria-pressed=true]{color:var(--accent)}
+.review-item{padding:24px 0;border-bottom:1px solid var(--line)}.review-title{text-align:left;min-height:40px}.review-title h3{font-size:17px;font-weight:500;line-height:1.7}.review-item>p{font-size:12px;line-height:1.9;color:var(--muted);margin:4px 0 14px}.review-actions{display:flex;gap:10px;flex-wrap:wrap}.review-actions .outline-button{padding:9px 14px}
+.add-material-modal{max-width:680px}.add-material-modal form>label{margin:22px 0}.add-material-modal .form-actions{flex-wrap:wrap}.material-file-field input{width:100%;min-height:64px;padding:16px;border:1px dashed var(--accent)}
+.data-settings{scroll-margin-top:20px}
+@media(max-width:1100px){.utility-nav{gap:16px}.utility-nav button{gap:6px}.utility-nav kbd{display:none}}
+@media(max-width:850px){.app-header{justify-content:space-between;gap:16px}.app-header .main-nav{order:3;width:100%;justify-content:flex-start;gap:30px;padding-top:4px}.utility-nav{margin-left:auto}}
+@media(max-width:480px){.utility-nav{gap:10px}.utility-nav button{font-size:11px;gap:4px}.utility-nav i{display:none}.utility-nav .search-icon{display:none}.utility-nav b{font-size:10px}.app-header .main-nav{justify-content:space-between;gap:10px}}

@@ -50,6 +50,8 @@
 | `src/features/archives/editor.ts` | 新建/编辑档案、日期精度、类型专属字段和页面会话草稿 |
 | `src/features/archives/detail.ts` | 概述、个人贡献、证明材料、使用记录及其操作 |
 | `src/features/archives/import.ts` | 可选 JSON 清单路径输入和导入结果 |
+| `src/features/archives/add-material.ts` | 首页添加材料、明确归属、失败保留选择及成功后进入档案 |
+| `src/features/archives/navigation.ts` | 档案页签定位及待整理动作的界面契约 |
 | `src/features/archives/organize.ts` | 归档、恢复和合并的操作界面 |
 | `src/features/archives/preview.ts` | 材料预览、定位与文件展示的清理 |
 | `src/features/archives/text-editor.ts` | 原始提取结果与人工校对的修订提交 |
@@ -185,6 +187,7 @@
 | `tests/integration/wave-data.test.ts` | 非空分类与实际档案到阵列的数据映射 |
 | `tests/browser/onboarding.test.mjs`、`journey.test.mjs` | 空库入口及贯穿材料、事实、简历的用户流程 |
 | `tests/browser/extraction-progress.test.mjs` | 自动进度、失败重试、读取恢复、窄屏及退出后的轮询清理 |
+| `tests/browser/actions.test.mjs` | 入口、按原因跳转、返回焦点、指定归属上传和失败恢复 |
 | `tests/browser/shell.test.mjs`、`search.test.mjs`、`detail.test.mjs` | 导航、检索、详情和键盘交互 |
 | `tests/browser/review.test.mjs`、`revisions.test.mjs`、`resume.test.mjs` | 待整理、修订、证据与简历编辑操作 |
 | `tests/browser/wave.test.mjs`、`wave-lifecycle.test.mjs` | 实际三维界面、选择、过渡与资源生命周期 |
@@ -193,6 +196,8 @@
 ## 文档与生成目录
 
 `docs/LOCAL-RUN.md` 解释使用和配置，`DATA-RECOVERY.md` 解释备份恢复，`ARCHITECTURE.md` 解释数据流，`RELEASING.md` 解释打包与验收。`SOURCE-ATTRIBUTION.md` 及两份 `*-fingerprints.json` 保存来源证据。
+
+`docs/UX-REVIEW.md` 保留产品操作走查、问题优先级与分批实施状态。
 
 `dist/`、`node_modules/`、`runtime/` 和 `release/` 是构建、依赖、运行和发布生成目录。它们不能作为业务源码修改位置。`runtime/library` 中的内容是用户数据，不应在测试、清理或发布时递归打包。
 

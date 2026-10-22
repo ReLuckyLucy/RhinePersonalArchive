@@ -31,7 +31,7 @@ export async function run({page,baseURL,ctx}){
  await page.getByRole('button',{name:'返回档案目录',exact:true}).click();
  await writeFile(join(ctx.libraryRoot,'catalog-proof.txt'),'第二个合成项目材料');
  await writeFile(join(ctx.libraryRoot,'custom-catalog.json'),JSON.stringify({records:[{id:'public-second',archiveRel:'catalog-proof.txt',subject:'第二个合成项目',category:'项目作品'}]}));
- await page.getByRole('button',{name:'导入清单',exact:true}).click();
+ await page.getByText('更多操作',{exact:true}).click();await page.getByRole('button',{name:'导入清单',exact:true}).click();
  await page.getByLabel('清单相对路径',{exact:true}).fill('custom-catalog.json');
  await page.getByRole('button',{name:'开始导入',exact:true}).click();
  await page.getByRole('dialog').waitFor({state:'detached'});

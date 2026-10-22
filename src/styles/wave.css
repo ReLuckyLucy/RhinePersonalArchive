@@ -123,3 +123,7 @@ body:has(.wave-stage){min-width:0}
  .wave-stage[data-mode=detail] .wave-heading{display:none}.wave-loading{width:90%}.wave-loading h2{font-size:24px}
 }
 html[data-motion=reduce] .wave-selection,html[data-motion=reduce] .wave-bottom,html[data-motion=reduce] .wave-document{transition:none}
+
+.wave-tools{gap:12px;align-items:center}.wave-tools>.solid-button{gap:12px;padding:12px 16px}.wave-tools>.outline-button{background:color-mix(in srgb,var(--paper) 88%,transparent);border-color:var(--muted)}
+.archive-more{position:relative;font-size:12px}.archive-more>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px;list-style:none}.archive-more>summary::-webkit-details-marker{display:none}.archive-more>summary:after{content:'⌄';color:var(--muted)}.archive-more>summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}.archive-more>div{position:absolute;right:0;top:48px;min-width:160px;padding:8px;background:var(--panel);border:1px solid var(--line);box-shadow:0 12px 32px var(--ghost);z-index:5}.archive-more>div button{display:block;text-align:left;padding:0 14px;width:100%}
+@media(max-width:680px){.wave-tools{top:106px;right:0;left:0;justify-content:flex-start;gap:10px;flex-wrap:wrap}.wave-tools>.solid-button,.wave-tools>.outline-button{font-size:12px;padding:10px 13px}.archive-more{margin-left:auto}.wave-stage[data-mode=detail] .wave-tools{display:none}}
