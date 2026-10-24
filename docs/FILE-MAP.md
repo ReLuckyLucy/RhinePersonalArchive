@@ -163,6 +163,7 @@
 | `scripts/open-source.mjs`、`scripts/open-source.ps1`、`scripts/open-source.d.mts` | 系统原件打开、容器限制与 TypeScript 类型声明 |
 | `scripts/create-test-materials.mjs` | 生成合成 DOCX、PDF、扫描件和图片测试夹具 |
 | `scripts/test-browser.mjs` | 创建隔离合成库，逐个执行浏览器测试并限制外部请求 |
+| `scripts/verify-resume-layout.mjs` | 用正式导出器生成普通/多行/溢出合成样本，保存 PDF 页数和文件指纹 |
 | `scripts/verify-library.mjs` | 显式指定库的原件指纹与清单导入验证；会写入测试库 |
 | `scripts/smoke-app.mjs` | 对指定空库服务执行发布业务验收，可检查重启持久化；不要对日常库执行 |
 | `scripts/release-files.mjs` | 公共文件允许列表、遍历和隐私/密钥/运行数据检查 |
@@ -184,6 +185,7 @@
 | `tests/integration/facts.test.ts` | 证据、确认、撤回和参考档案规则 |
 | `tests/integration/search.test.ts` | 文字、筛选、中文与特殊字符检索 |
 | `tests/integration/resume.test.ts`、`export.test.ts` | 事实约束、版本冻结、表述与 PDF/DOCX 内容 |
+| `tests/integration/docx-format.test.ts` | Word 包内的有效标题颜色/字号、段落衔接和同一贡献的换行语义 |
 | `tests/integration/backup.test.ts` | 完整备份、错误口令、不安全条目和新目录恢复 |
 | `tests/integration/wave-data.test.ts` | 非空分类与实际档案到阵列的数据映射 |
 | `tests/browser/onboarding.test.mjs`、`journey.test.mjs` | 空库入口及贯穿材料、事实、简历的用户流程 |

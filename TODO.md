@@ -41,7 +41,11 @@
 
 ## Separate acceptance
 
+- [x] Inspect all PDF pages from compact, long-title/multiline and overflow synthetic exports.
+- [x] Verify neutral Word heading hierarchy and one-bullet multiline contributions in the emitted Word package.
 - [ ] Office application visual acceptance of DOCX formatting.
 - [ ] iPhone Safari hardware acceptance of motion and touch.
+
+DOCX page rendering is still pending: the local canonical renderer cannot find LibreOffice, and Microsoft Word is unavailable. XML checks do not establish page appearance or font substitution.
 
 Unknown personal facts always require user confirmation; automated tests use synthetic material.

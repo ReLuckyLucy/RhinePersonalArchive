@@ -104,3 +104,22 @@ covered. Public source scan: 943 files, 27 private markers, zero matches. The lo
 service was stopped; the existing starter launched it using its unchanged config,
 and its health/entry match the current build. No private-library editing was used
 for acceptance. Office DOCX visual and real iPhone/Safari checks remain separate.
+
+Export formatting follow-up: Word sections now use neutral 12 pt headings instead
+of inheriting Office's blue defaults. Newlines and blank lines inside one
+contribution remain inside its bullet paragraph, matching the PDF document model.
+The emitted Word XML is tested for effective styling, keep-next and exact breaks.
+A synthetic layout command generates compact, long-title/multiline and overflow
+PDF/Word samples in a new ignored directory, including page counts and hashes.
+
+Verification: production build, 51/51 integration tests and the resume-flow plus
+resume browser suites passed. Three PDF samples produced 1/1/2 pages; all four
+pages were rasterized and visually inspected, including long URLs, a rare CJK
+glyph and complete overflow content. Independent source review found no actionable
+issues. The canonical DOCX renderer failed because soffice.exe is unavailable;
+Word/Office visual acceptance remains unchecked, not inferred from XML or PDF.
+No private source material was used, and existing export files were not rewritten.
+Public source scan: 945 files, 27 private markers, zero matches. After an orderly
+local-service restart, health returned 200 and configuration hash, schema version
+3 and the 23 existing tables matched the pre-restart baseline. This is not a
+whole-database row immutability check during concurrent user activity.

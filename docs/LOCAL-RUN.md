@@ -159,6 +159,18 @@ docker compose cp archive:/app/runtime/backups ./backup-export
 
 恢复时先将备份复制到备份卷，刷新页面的备份列表并选择文件，填写容器内的新目标路径。新目标须不存在且处于持久化位置，例如 `/app/runtime/library/restored-library`。验证后切换，并确认备份目录仍在新库外。各项实测结果见 [PROJECT_STATE.md](../PROJECT_STATE.md)。
 
+## 开发者导出版式检查
+
+完成源码资源准备后运行：
+
+```sh
+npm run verify:resume-layout
+```
+
+命令沿用正式 PDF/Word 导出器，生成普通、长标题/多行/长链接、超长内容三组固定合成样本。每次结果位于新的 `verification/private/resume-layout/run-*` 目录，清单记录 PDF 页数、是否超过目标页数和各文件指纹。生成过程不打开资料库，验证输出已排除 Git 和发行包。
+
+PDF 需逐页检查换行、裁切和页面衔接；Word 包内的标题和段落结构由集成测试检查，真实分页、字体替代仍需在 Office 应用中打开检查。当前源码修正了 Word 的默认蓝色栏目标题，以及多行贡献被误拆成多个项目符号的问题；以前导出的文件保持原样。Word 与 PDF 使用各自的排版引擎，实际分页可能不同。
+
 ## 升级
 
 1. 创建加密备份，保存口令，并完成一次恢复验证。

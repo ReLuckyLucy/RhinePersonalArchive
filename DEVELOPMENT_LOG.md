@@ -1,5 +1,29 @@
 # Development log
 
+## 2026-10-24 — export formatting checks
+
+- Continued the remaining export acceptance using synthetic material. Word's
+  emitted Heading1 inherited blue 2E74B5 and section runs used body size; a failing
+  effective-style test preceded explicit neutral styles and 12 pt section runs.
+- A second failing test proved newline-separated text inside one contribution
+  produced extra bullets. A single bullet paragraph now holds explicit line-break
+  runs, retaining blank lines, A4 geometry and existing paragraph keep controls.
+- Added a layout sample command using the same renderers, without opening a
+  library. Each run creates a fresh ignored folder with three PDF/Word pairs and
+  a page-count/hash manifest. Source includes only fixed synthetic inputs.
+- Inspected all four pages from the compact, long-title/multiline and overflow
+  PDFs (1/1/2 pages), including the long URL and rare-character content. Word's
+  canonical renderer was attempted and failed because soffice.exe is unavailable;
+  Office visual acceptance remains pending. No Word-render success is claimed.
+- Verified production build, 51 integration tests and both resume browser suites.
+  Independent source review found no actionable findings; Word pagination/font
+  substitution remains explicitly outside the completed evidence.
+- Public source scan: 945 files, 27 private markers, zero matches. Gracefully
+  restarted only the local archive service to load the backend renderer update;
+  health is 200 and config hash/schema version/23 tables matched the baseline.
+  No database-row immutability claim is made during concurrent browsing. Existing
+  published v0.1.0 downloads remain unchanged.
+
 ## 2026-10-24 — resume guidance and stable actions
 
 - Kept a single native one-page form. Added stage anchors, a fixed action bar,
