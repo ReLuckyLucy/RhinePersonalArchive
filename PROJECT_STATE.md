@@ -1,6 +1,6 @@
 # Project state
 
-Updated: 2026-10-22. Standalone release: v0.1.0.
+Updated: 2026-10-24. Standalone release: v0.1.0.
 
 Native TypeScript/Three.js UI and Node 24.10/SQLite local backend. Runtime data
 is external to source control, Docker context and downloadable bundles.
@@ -45,8 +45,8 @@ The first usability pass is implemented: visible Chinese utility labels, clear
 new/upload actions, an advanced actions menu, explicit material ownership,
 reason-specific review navigation with return focus/scroll, and direct library
 location management. It reuses existing import and edit APIs; no database schema
-or backend behavior changed. The reading pass follows below; the resume stage
-and export improvements in UX-REVIEW.md remain pending, tracked in TODO.md.
+or backend behavior changed. The reading and resume usability passes follow below,
+with completion and separate acceptance tracked in TODO.md.
 
 Verification: 49 integration tests, production build and all 12 browser suites
 passed across two groups. Homepage/upload/review paths were checked at desktop
@@ -78,3 +78,29 @@ at 1440, 760, 390 and 334 pixels; native PDF switching, delayed text responses,
 correction refresh and favorite-filter draft retention were exercised with
 synthetic material. The old source-version refusal and WebGL lifecycle regressions
 also passed. Real iPhone/Safari acceptance remains separate as listed in TODO.md.
+
+The third usability pass implements single-page resume stages, persistent save,
+version, PDF and Word actions, explicit current/history export targets and honest
+empty/stale/blocked preview states. Exporting current edits saves and freezes a
+validated version; an explicitly selected history version retains its document.
+Mutating operations serialize, capture input before requests and refuse automatic
+downloads if input changes during the operation. Export and save failures preserve
+the form. Session drafts survive page/list navigation and multiple unsaved draft
+switches without being automatically written to SQLite; refresh/close still clears
+unsubmitted input. Returning during persistence waits for its resulting revision.
+
+No backend, schema, resume template or wave-scene change was needed. The independent
+review found local-back input loss and hidden initial validation results. Both
+were covered by failing-then-passing tests and fixed; no findings remain deferred.
+The new non-WebGL resume flow is part of default browser acceptance and Windows CI.
+Published v0.1.0 downloads remain unchanged.
+
+Verification for the resume pass: production build, 49/49 integration tests and
+all 14 browser suites passed in three sequential groups. Light/dark layouts at
+1440, 760, 390 and 334 pixels retain visible actions and no horizontal overflow.
+Synthetic exports verify current and historical version targeting; delayed saves,
+history reads, list restoration, withdrawn evidence and transport failures are
+covered. Public source scan: 943 files, 27 private markers, zero matches. The local
+service was stopped; the existing starter launched it using its unchanged config,
+and its health/entry match the current build. No private-library editing was used
+for acceptance. Office DOCX visual and real iPhone/Safari checks remain separate.

@@ -2,7 +2,7 @@ import{readdir,lstat,readFile}from'node:fs/promises';
 import{join,extname}from'node:path';
 export const publicDirectories=['src','server','shared','public','tests','examples','licenses','.github'];
 export const publicFiles=['.gitignore','.dockerignore','Dockerfile','compose.yaml','package.json','package-lock.json','tsconfig.json','vite.config.ts','index.html','LICENSE','NOTICE','README.md','CHANGELOG.md','SECURITY.md','TODO.md','PROJECT_STATE.md','DEVELOPMENT_LOG.md','启动档案.cmd','停止档案.cmd',
- 'docs/media/archive-demo.png','docs/ARCHITECTURE.md','docs/FILE-MAP.md','docs/LOCAL-RUN.md','docs/DATA-RECOVERY.md','docs/RELEASING.md','docs/UX-REVIEW.md','docs/SOURCE-ATTRIBUTION.md','docs/source-fingerprints.json','docs/rhine-scene-fingerprints.json'];
+ 'docs/media/archive-demo.png','docs/ARCHITECTURE.md','docs/FILE-MAP.md','docs/LOCAL-RUN.md','docs/DATA-RECOVERY.md','docs/RELEASING.md','docs/UX-REVIEW.md','docs/RESUME-USABILITY-PLAN.md','docs/SOURCE-ATTRIBUTION.md','docs/source-fingerprints.json','docs/rhine-scene-fingerprints.json'];
 export async function walk(root,folder=''){
  const result=[];
  for(const entry of await readdir(join(root,folder),{withFileTypes:true})){

@@ -1,5 +1,33 @@
 # Development log
 
+## 2026-10-24 — resume guidance and stable actions
+
+- Kept a single native one-page form. Added stage anchors, a fixed action bar,
+  collapsed empty groups, explicit preview access and an empty-selection review
+  route. Current draft, saved version and chosen history are labeled separately.
+- Current export saves/builds/freezes before downloading. Input generations and
+  preview intent guard late responses; mutation actions serialize. Saving during
+  navigation completes with the resulting revision, without overwriting captured
+  newer input. Errors leave fields and retry actions available.
+- A same-generation rebuild after external fact withdrawal exposed a stale iframe
+  cache key. A failing browser assertion preceded a separate render revision fix.
+- Independent source review found list-back data loss and hidden initial build
+  issues. Fixed the first with keyed session draft snapshots and the second with
+  shared initial/save issue rendering and a qualified preview state. Both findings
+  have failing-then-passing regressions; neither was deferred. Session snapshots
+  are not a second persistent library and are not automatically saved.
+- The new resume-flow suite uses real isolated Word versions/exports, injects save
+  and export transport failures, delays save/history responses and checks multiple
+  draft restoration. It starts on resume and uses review for page navigation, so
+  hosted acceptance does not depend on WebGL. Added it to default tests and CI.
+- No backend/schema/template changes; private material is not used in tests.
+  Published v0.1.0 assets remain the original release. Public plan and usage/state
+  records describe the new source behavior and retain separate Office/iPhone checks.
+- Verified build, 49 integration tests and all 14 browser suites across three
+  sequential groups after fixes. Public source privacy scan: 943 files, 27 markers,
+  zero hits. Live service was not running; the existing starter launched the same
+  configuration, whose hash is unchanged, and served the current production build.
+
 ## 2026-10-22 — detail reading and evidence comparison
 
 - Added expanded reading without changing the scene, models or camera. Desktop

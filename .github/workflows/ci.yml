@@ -21,7 +21,7 @@ jobs:
       - run: npm test
       # Hosted runners have no suitable GPU for the full wave acceptance suite.
       # Full-resolution WebGL interaction is verified locally before a release.
-      - run: npm run test:e2e -- tests/browser/shell.test.mjs tests/browser/extraction-progress.test.mjs
+      - run: npm run test:e2e -- tests/browser/shell.test.mjs tests/browser/extraction-progress.test.mjs tests/browser/resume-flow.test.mjs
       - name: Verify native workflow
         env:
           RHINE_PORT: 14318

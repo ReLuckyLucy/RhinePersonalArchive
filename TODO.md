@@ -8,7 +8,8 @@
 - [x] Link review reasons to role/date fields or facts/materials tabs; restore return context.
 - [x] Open and focus library location directly from its management entry.
 - [x] Detail reading space, compact extraction status and original/evidence comparison.
-- [ ] Following pass: resume stage guidance and stable preview/export actions.
+- [x] Resume stage guidance, persistent actions and explicit current/history export targets.
+- [x] Resume session edits survive stage, page and list navigation; initial/stale/blocked previews explain their state.
 - [x] Adapt reference-dossier wording and secondary organization actions.
 - [x] Preserve the open detail and unsaved statement after removing a favorite, including from the favorites filter.
 

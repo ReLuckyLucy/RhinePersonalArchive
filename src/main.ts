@@ -6,6 +6,7 @@ import './styles/base.css';
 import './styles/layout.css';
 import './styles/theme.css';
 import './styles/wave.css';
+import './styles/resume.css';
 import '@kitlangton/rolling-number/styles.css';
 import { initialView,type Route } from './app/state';
 import { rememberRoute } from './app/router';
@@ -54,7 +55,7 @@ export function mountShell(root:HTMLElement):AppShell {
     wave?.dispose();wave=undefined;disposePage?.();disposePage=undefined;
     if(editing){disposePage=mountDossierEditor(main,editing==='new'?undefined:editing,updateCache,back,{field:editorField,fromReview:location?.fromReview});return;}
     if(state.route==='review'){disposePage=mountReview(main,(id,action)=>{reviewScroll=window.scrollY;reviewFocus={id,action};if(action==='role'||action==='date'){const d=dossiers.find(item=>item.id===id);if(!d){showToast('档案已变化，请刷新后重试。');return;}location={fromReview:true};editorField=action;editing=d;detailId=undefined;state.route='archives';render();}else read(id,undefined,{fromReview:true,tab:action});},reviewScroll,reviewFocus);return;}
-    if(state.route==='resume'){disposePage=mountResume(main,(id,factId)=>read(id,{id:factId,entityType:'fact',title:'',snippet:'',status:''}));return;}
+    if(state.route==='resume'){disposePage=mountResume(main,(id,factId)=>read(id,{id:factId,entityType:'fact',title:'',snippet:'',status:''}),()=>navigate('review'));return;}
   };
   const navigate=(route:Route)=>{reviewFocus=undefined;location=undefined;editorField=undefined;detailId=undefined;editing=undefined;state.route=route;rememberRoute(route);render();};
   const showSearch=(trigger:HTMLElement)=>openSearch(trigger,hit=>read(hit.dossierId??hit.id,hit));

@@ -35,6 +35,7 @@
 | `src/styles/layout.css` | 页面、表单、详情、检索和简历布局 |
 | `src/styles/theme.css` | 明暗主题及视觉变量 |
 | `src/styles/wave.css` | 档案阵列与正文层的界面布局 |
+| `src/styles/resume.css` | 简历阶段定位、固定操作栏、预览与窄屏布局 |
 | `src/ui/brand.ts` | DOM 使用的共享品牌图形和文字 |
 | `src/ui/html.ts` | HTML 文本转义 |
 | `src/ui/modal.ts` | 弹窗生命周期、输入隔离和焦点返回 |
@@ -60,8 +61,8 @@
 | `src/features/review/editor.ts` | 事实、成果归属、证明字段、证据位置/摘录/等级表单 |
 | `src/features/search/modal.ts` | 搜索弹窗、筛选、键盘结果导航和读取定位 |
 | `src/features/resume/page.ts` | 简历工作台初始说明与空态 |
-| `src/features/resume/workspace.ts` | 草稿列表、编辑器装配及跨页核对后恢复 |
-| `src/features/resume/editor.ts` | 选材、栏目、个人信息、表述、预览、冻结版本和导出 |
+| `src/features/resume/workspace.ts` | 草稿列表、按简历保存的会话输入、等待在途保存后恢复编辑 |
+| `src/features/resume/editor.ts` | 阶段定位、选材/表述、预览状态、版本导出对象与串行操作 |
 | `src/features/settings/page.ts` | 本机资料库和备份路径设置 |
 | `src/features/library/indicator.ts` | 当前资料库名称、只读位置/数量弹窗、重试及设置入口 |
 | `src/features/settings/backup.ts` | 加密备份、恢复验证和切换库的表单 |
@@ -189,6 +190,7 @@
 | `tests/browser/extraction-progress.test.mjs` | 自动进度、失败重试、读取恢复、窄屏及退出后的轮询清理 |
 | `tests/browser/actions.test.mjs` | 入口、按原因跳转、返回焦点、指定归属上传和失败恢复 |
 | `tests/browser/reading.test.mjs` | 阅读空间、贡献/原件对照、文字校对刷新、异步切换、收藏草稿保留与参考类型 |
+| `tests/browser/resume-flow.test.mjs` | 实际版本导出、编辑与历史对象、在途保存、会话恢复、检查提示和固定操作栏 |
 | `tests/browser/shell.test.mjs`、`search.test.mjs`、`detail.test.mjs` | 导航、检索、详情和键盘交互 |
 | `tests/browser/review.test.mjs`、`revisions.test.mjs`、`resume.test.mjs` | 待整理、修订、证据与简历编辑操作 |
 | `tests/browser/wave.test.mjs`、`wave-lifecycle.test.mjs` | 实际三维界面、选择、过渡与资源生命周期 |
@@ -199,6 +201,7 @@
 `docs/LOCAL-RUN.md` 解释使用和配置，`DATA-RECOVERY.md` 解释备份恢复，`ARCHITECTURE.md` 解释数据流，`RELEASING.md` 解释打包与验收。`SOURCE-ATTRIBUTION.md` 及两份 `*-fingerprints.json` 保存来源证据。
 
 `docs/UX-REVIEW.md` 保留产品操作走查、问题优先级与分批实施状态。
+`docs/RESUME-USABILITY-PLAN.md` 记录简历操作改进的范围、实现与验收结果。
 
 `dist/`、`node_modules/`、`runtime/` 和 `release/` 是构建、依赖、运行和发布生成目录。它们不能作为业务源码修改位置。`runtime/library` 中的内容是用户数据，不应在测试、清理或发布时递归打包。
 
