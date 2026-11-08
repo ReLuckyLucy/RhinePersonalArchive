@@ -52,7 +52,7 @@ INSERT INTO catalog_topics(catalog_key,topic_key,dossier_id)
 SELECT catalog_key,topic_key,dossier_id FROM counted
 WHERE (active=1 AND (active_count=1 OR (active_title_count=1 AND title_matches=1)))
  OR (active_count=0 AND owner_count=1);
-`];
+`, `CREATE TABLE resume_recoveries(id TEXT PRIMARY KEY,revision INTEGER NOT NULL,data TEXT NOT NULL,updated_at TEXT NOT NULL);`];
 export async function migrate(db:DatabaseSync,runtimeRoot:string,steps=migrations){
  const version=Number((db.prepare('PRAGMA user_version').get() as any).user_version);
  if(version>steps.length)throw new Error('Database is newer than this application');

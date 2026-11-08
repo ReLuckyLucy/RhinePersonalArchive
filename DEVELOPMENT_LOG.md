@@ -1,5 +1,37 @@
 # Development log
 
+## 2026-11-08 — editing reliability
+
+- User verified a real encrypted backup and new-directory restoration before any
+  production upgrade. Password entry remained local and the active library was
+  not switched. Implementation uses a separate checkout and synthetic libraries.
+- Added schema-4 resume recovery records, bounded authenticated APIs, optimistic
+  revision checks and backup manifest coverage. Schema-3 backup verification keeps
+  its original manifest shape before the restored library is migrated.
+- Added debounced recovery, refresh/list restoration, navigation flush, visible
+  pending/saved/error state, an unsaved-exit guard and conflict recovery copies.
+  Formal saving cleans only the matching checkpoint; newer typing survives.
+  An acceptance test caught stale profile recovery overwriting newer shared data;
+  original profile revisions are now retained and that test passes.
+- Sessions renew once only for confirmed authentication rejection. Concurrent
+  requests share renewal; late old-token rejection cannot invalidate a fresh one.
+  Library identity blocks old-page edits after switching the connected library.
+  File uploads retain the same one-retry boundary; ambiguous errors are not replayed.
+- Confirmed ongoing booleans now reach new resume documents as “至今”. Precision,
+  evidence checks, manual confirmation and immutable versions remain enforced.
+  Review found unselected live date coupling and a missing adoption path for
+  corrected dossier fields; targeted regressions accompany both fixes.
+- Local acceptance: production build, 88/88 integration tests and all 17 browser
+  cases passed across sequential groups. Concurrent development reloads interrupted
+  two onboarding attempts; a clean run passed. The pending-save label was restored
+  to preserve the existing resume-flow check, which then passed in full.
+- Independent focused re-review approved both fact-revision fixes with no remaining
+  Critical/Important issues. Source packaging inspected 955 public files against
+  27 private markers with zero matches; no library/configuration entered the package.
+- Main integration, local activation and remote Windows/Docker results follow
+  after this accepted source. DOCX Office visual and real iPhone/Safari acceptance
+  remain separate. This slice does not replace published v0.1.0 assets.
+
 ## 2026-10-24 — export formatting checks
 
 - Continued the remaining export acceptance using synthetic material. Word's

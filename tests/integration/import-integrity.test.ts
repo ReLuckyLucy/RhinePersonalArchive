@@ -118,7 +118,7 @@ test('legacy import mapping backfills renamed, merged and archived ownership',as
   const ctx=await createTestLibrary(t);await catalog(ctx,records);
   const a=listDossiers(ctx,{}).find(d=>d.title==='Topic A')!,b=listDossiers(ctx,{}).find(d=>d.title==='Topic B')!;
   const changed=renamed(ctx,a.id,'Renamed before upgrade');mergeDossiers(ctx,a.id,b.id,changed.revision,b.revision);
-  ctx.db.exec('DROP TABLE IF EXISTS catalog_topics; PRAGMA user_version=2');
+  ctx.db.exec('DROP TABLE IF EXISTS resume_recoveries; DROP TABLE IF EXISTS catalog_topics; PRAGMA user_version=2');
   await migrate(ctx.db,ctx.runtimeRoot);
   // Migration must pick the live merge target even though the archived source retains its links.
   await importCatalog(ctx,'catalog.json');assert.equal(listDossiers(ctx,{}).length,1);
@@ -144,7 +144,7 @@ test('ambiguous legacy ownership is reported without inventing another dossier',
   renamed(ctx,a.id,'Edited A');renamed(ctx,b.id,'Edited B');
   ctx.db.prepare('INSERT OR IGNORE INTO dossier_sources VALUES(?,?)').run(b.id,listSources(ctx,a.id)[0].id);
   archiveDossier(ctx,a.id,2);archiveDossier(ctx,b.id,2);
-  ctx.db.exec('DROP TABLE catalog_topics; PRAGMA user_version=2');await migrate(ctx.db,ctx.runtimeRoot);
+  ctx.db.exec('DROP TABLE resume_recoveries; DROP TABLE catalog_topics; PRAGMA user_version=2');await migrate(ctx.db,ctx.runtimeRoot);
   const report=await importCatalog(ctx,'catalog.json');assert.equal(report.errors[0]?.code,'AMBIGUOUS_TOPIC');
   assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get()!.n,2);assert.equal(listDossiers(ctx,{}).length,0);
 });
@@ -153,7 +153,7 @@ test('legacy merged owners archived before upgrade are not inferred from obsolet
   const ctx=await createTestLibrary(t);await catalog(ctx,records);
   const a=listDossiers(ctx,{}).find(d=>d.title==='Topic A')!,b=listDossiers(ctx,{}).find(d=>d.title==='Topic B')!;
   mergeDossiers(ctx,a.id,b.id,a.revision,b.revision);archiveDossier(ctx,b.id,b.revision);
-  ctx.db.exec('DROP TABLE catalog_topics; PRAGMA user_version=2');await migrate(ctx.db,ctx.runtimeRoot);
+  ctx.db.exec('DROP TABLE resume_recoveries; DROP TABLE catalog_topics; PRAGMA user_version=2');await migrate(ctx.db,ctx.runtimeRoot);
   const report=await importCatalog(ctx,'catalog.json');assert.equal(report.errors[0]?.code,'AMBIGUOUS_TOPIC');
   assert.equal(ctx.db.prepare('SELECT count(*) n FROM dossiers').get()!.n,2);assert.equal(listDossiers(ctx,{}).length,0);
 });

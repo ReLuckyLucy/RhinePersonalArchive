@@ -1,6 +1,25 @@
 # Project state
 
-Updated: 2026-10-24. Standalone release: v0.1.0.
+Updated: 2026-11-08. Standalone release: v0.1.0.
+
+The current reliability slice adds schema 4 and an independent resume recovery
+table. Editing checkpoints persist in the active library, including raw profile
+input and original draft/profile revisions. They are separate from formal saves,
+confirmed facts and immutable versions. Refresh restoration, immediate navigation,
+failed checkpoints, conflict copies and newer typing during formal saves are
+covered by synthetic browser cases. Dossier/fact cross-refresh recovery remains
+a later slice.
+
+The API renews a rejected same-library session once, merges concurrent renewal,
+and blocks stale-page requests after a library switch. New resume documents use
+ongoing dates only from explicitly selected and confirmed boolean proof fields;
+old facts and historical resume versions keep their existing semantics. Review
+also covers field snapshot preservation and explicit adoption of dossier corrections.
+
+Pre-upgrade protection: user-created encrypted backup and a separate new-directory
+restore were observed successful without changing the active library. Verification
+and integration results for this slice are recorded in the development log and
+reliability plan. Published v0.1.0 assets have not been replaced.
 
 Native TypeScript/Three.js UI and Node 24.10/SQLite local backend. Runtime data
 is external to source control, Docker context and downloadable bundles.

@@ -1,5 +1,16 @@
 # Development TODO
 
+## Editing reliability — 2026-11-08
+
+- [x] Durable resume editing recovery in the active library; incomplete profile input remains separate from formally saved data.
+- [x] Preserve latest edits through refresh/navigation, pending saves, checkpoint failures and optimistic conflicts.
+- [x] Reconnect expired sessions once on the same library; block stale edits after a library switch.
+- [x] Explicitly select and confirm ongoing date status; carry it into new resume documents without altering historical versions.
+- [x] Verify schema-3 encrypted backups before migration and include recovery snapshots in new backups.
+- [ ] Finish independent review, public packaging/privacy checks, main integration and remote Windows/Docker acceptance.
+- [ ] Add cross-refresh recovery for dossier and fact forms in a later slice.
+- [ ] Decide a new downloadable release after source acceptance; published v0.1.0 assets are unchanged.
+
 ## Product usability — first pass
 
 - [x] Keep search, saved and settings labels visible at narrow widths.
@@ -46,6 +57,6 @@
 - [ ] Office application visual acceptance of DOCX formatting.
 - [ ] iPhone Safari hardware acceptance of motion and touch.
 
-DOCX page rendering is still pending: the local canonical renderer cannot find LibreOffice, and Microsoft Word is unavailable. XML checks do not establish page appearance or font substitution.
+DOCX visual acceptance is still pending. Microsoft Word is now installed locally; earlier XML checks do not establish page appearance or font substitution.
 
 Unknown personal facts always require user confirmation; automated tests use synthetic material.

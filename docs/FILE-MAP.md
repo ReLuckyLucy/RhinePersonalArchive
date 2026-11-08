@@ -29,7 +29,7 @@
 | `src/main.ts` | 应用装配、导航、页面切换、设置与全局交互 |
 | `src/app/state.ts` | 页面状态、分类名称与初始选择 |
 | `src/app/router.ts` | 保存上次浏览页面 |
-| `src/api/client.ts` | 本机会话、CSRF 和 API 请求/错误处理 |
+| `src/api/client.ts` | 本机会话、CSRF、认证拒绝重连一次与资料库切换隔离 |
 | `src/fonts.css` | 本地 MiSans 字体声明 |
 | `src/styles/base.css` | 基础排版、控件和通用元素 |
 | `src/styles/layout.css` | 页面、表单、详情、检索和简历布局 |
@@ -61,7 +61,8 @@
 | `src/features/review/editor.ts` | 事实、成果归属、证明字段、证据位置/摘录/等级表单 |
 | `src/features/search/modal.ts` | 搜索弹窗、筛选、键盘结果导航和读取定位 |
 | `src/features/resume/page.ts` | 简历工作台初始说明与空态 |
-| `src/features/resume/workspace.ts` | 草稿列表、按简历保存的会话输入、等待在途保存后恢复编辑 |
+| `src/features/resume/workspace.ts` | 草稿与恢复列表、在途保存协调、恢复和放弃编辑 |
+| `src/features/resume/recovery.ts` | 编辑保留队列、离开保护、正式保存清理与冲突副本 |
 | `src/features/resume/editor.ts` | 阶段定位、选材/表述、预览状态、版本导出对象与串行操作 |
 | `src/features/settings/page.ts` | 本机资料库和备份路径设置 |
 | `src/features/library/indicator.ts` | 当前资料库名称、只读位置/数量弹窗、重试及设置入口 |
@@ -116,6 +117,7 @@
 | `shared/schemas.ts` | 档案、日期、事实、证据、个人信息和草稿输入验证 |
 | `shared/domain.ts` | 前后端共用领域和配置类型 |
 | `shared/api.ts` | 应用身份、会话、资料库身份与提取进度契约 |
+| `shared/resume-recovery.ts` | 简历恢复记录验证、原始编辑字符串与基础版本契约 |
 | `shared/errors.ts` | 有编码、状态和字段信息的业务错误 |
 | `shared/resume-document.ts` | 简历文档结构、检查项与共享 HTML/打印模板 |
 
@@ -141,6 +143,7 @@
 | 路径 | 用途 |
 | --- | --- |
 | `server/resume/service.ts` | 草稿、证明字段检查、文档构建、不可变版本与历史读取 |
+| `server/resume/recovery.ts` | 恢复记录的独立持久化、摘要与乐观并发检查 |
 | `server/resume/wording.ts` | 投递表述新增未确认数字、角色或技术词的基础检查 |
 | `server/resume/match.ts` | 本地岗位关键词命中与缺口提示 |
 | `server/resume/pdf.ts` | 本地字体服务、受限 Chromium 渲染和页数读取 |

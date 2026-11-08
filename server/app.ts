@@ -19,13 +19,14 @@ import { readExtractedText,reviseExtractedText } from './sources/extract.ts';
 import { searchArchive } from './search/service.ts';
 import {saveResumeDraft,getResumeDraft,listResumeDrafts,buildResumeDocument,freezeResumeVersion,getResumeVersion,listResumeVersions} from './resume/service.ts';
 import {matchRole} from './resume/match.ts';
+import {listResumeRecoveries,getResumeRecovery,saveResumeRecovery,discardResumeRecovery} from './resume/recovery.ts';
 import {exportResume} from './resume/export.ts';
 import {createBackup,verifyBackup,activateRestoredLibrary} from './backup/service.ts';
 import {loadConfig,saveConfig} from './config.ts';
 export async function readJson(req:IncomingMessage){let size=0;const chunks:Buffer[]=[];for await(const chunk of req){size+=chunk.length;if(size>2*1024*1024)throw new AppError('TOO_LARGE','请求内容过大',413);chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw new AppError('BAD_JSON','请求内容不是有效 JSON');}}
 export function json(res:ServerResponse,data:unknown,status=200){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({ok:true,data}));}
 export async function createLocalApp(ctx:LibraryContext,options:{dev?:boolean;onRestart?:()=>void;onShutdown?:()=>void}={}){
- const auth=sessions();const jobsAbort=new AbortController();recoverJobs(ctx);let processing=Promise.resolve();const processJobs=()=>{processing=processing.then(()=>runPendingJobs(ctx,jobsAbort.signal)).catch(()=>{ /* Jobs stay queued for the next startup if configuration is unavailable. */ });};processJobs();const vite=options.dev?await(await import('vite')).createServer({server:{middlewareMode:true,host:'127.0.0.1'},appType:'spa'}):undefined;
+ const auth=sessions(ctx.libraryRoot);const jobsAbort=new AbortController();recoverJobs(ctx);let processing=Promise.resolve();const processJobs=()=>{processing=processing.then(()=>runPendingJobs(ctx,jobsAbort.signal)).catch(()=>{ /* Jobs stay queued for the next startup if configuration is unavailable. */ });};processJobs();const vite=options.dev?await(await import('vite')).createServer({server:{middlewareMode:true,host:'127.0.0.1'},appType:'spa'}):undefined;
  const server=createServer(async(req,res)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
  try{auth.boundary(req);const url=new URL(req.url??'/',`http://${req.headers.host}`);const route=url.pathname;const method=req.method??'GET';
  if(route==='/api/health'&&method==='GET'){json(res,{appId:APP_ID,instanceId:auth.instanceId,pid:process.pid});return;}
@@ -48,6 +49,9 @@ export async function createLocalApp(ctx:LibraryContext,options:{dev?:boolean;on
  if(route==='/api/restore/activate'&&method==='POST'){if(!options.onRestart)throw new AppError('RESTART_REQUIRED','请通过正式启动入口切换资料库');const b=await readJson(req);await activateRestoredLibrary(b.newRoot);json(res,{});setTimeout(options.onRestart,100);return;}
  if(route==='/api/exports'&&method==='POST'){const b=await readJson(req);json(res,await exportResume(ctx,b.versionId,b.format));return;}
  const exportRoute=/^\/api\/exports\/([a-f0-9-]{36})\/file$/.exec(route);if(exportRoute&&method==='GET'){const row=ctx.db.prepare('SELECT data FROM exports WHERE id=?').get(exportRoute[1]);if(!row)throw new AppError('NOT_FOUND','未找到导出文件',404);const record=JSON.parse(row.data as string);if(record.status!=='success'||!/^resume-[a-f0-9-]{36}\.(pdf|docx)$/.test(record.fileName))throw new AppError('NOT_FOUND','导出未成功',404);const bytes=await readFile(resolve(ctx.exportRoot,record.fileName));res.writeHead(200,{'Content-Type':record.format==='pdf'?'application/pdf':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','Content-Disposition':`attachment; filename="${record.fileName}"`,'Cache-Control':'no-store'});res.end(bytes);return;}
+ if(route==='/api/resume-recoveries'&&method==='GET'){json(res,listResumeRecoveries(ctx));return;}
+ if(route==='/api/resume-recoveries'&&method==='POST'){const b=await readJson(req);json(res,saveResumeRecovery(ctx,b.input,b.expectedRevision,b.id));return;}
+ const recoveryRoute=/^\/api\/resume-recoveries\/([a-f0-9-]{36})(\/discard)?$/.exec(route);if(recoveryRoute){if(method==='GET'&&!recoveryRoute[2]){json(res,getResumeRecovery(ctx,recoveryRoute[1]));return;}if(method==='POST'&&recoveryRoute[2]){const b=await readJson(req);discardResumeRecovery(ctx,recoveryRoute[1],b.expectedRevision);json(res,{});return;}}
  if(route==='/api/resume-drafts'&&method==='GET'){json(res,listResumeDrafts(ctx));return;}
  if(route==='/api/resume-drafts'&&method==='POST'){const b=await readJson(req);json(res,saveResumeDraft(ctx,b.input,b.expectedRevision));return;}
  if(route==='/api/resume-match'&&method==='POST'){const b=await readJson(req);if(typeof b.jobDescription!=='string'||b.jobDescription.length>20000)throw new AppError('VALIDATION','岗位描述无效');json(res,matchRole(ctx,b.jobDescription));return;}

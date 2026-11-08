@@ -3,13 +3,15 @@ import type {ResumeDocument,ResumeIssue} from '../../../shared/resume-document';
 import {renderResumeHtml} from '../../../shared/resume-document';
 import {api} from '../../api/client';
 import {escapeHtml as esc} from '../../ui/html';
+import {resumeRecovery,type RecoveryHandle} from './recovery';
 
 const titles:Record<string,string>={education:'教育背景',work:'工作与实习',project:'项目经历',award:'竞赛与荣誉',research:'科研成果',volunteer:'组织与志愿',portfolio:'作品集',reference:'参考'};
 const profileFields=[['name','姓名'],['email','邮箱'],['phone','电话'],['location','所在地'],['headline','个人简介']] as const;
 type Built={document:ResumeDocument;issues:ResumeIssue[]};
 type Version={id:string;document:ResumeDocument;roleTitle:string;createdAt:string};
 
-export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,profile:Profile,dossiers:Dossier[],facts:Fact[],onBack:()=>void,onSuspend?:(draft:ResumeDraft,edits:Profile,pending?:Promise<void>)=>void,profileEdits?:Profile,onReviewFact?:(dossierId:string,factId:string)=>void,onReviewQueue?:()=>void){
+export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,profile:Profile,dossiers:Dossier[],facts:Fact[],onBack:()=>void,onSuspend?:(draft:ResumeDraft,edits:Profile,pending?:Promise<void>,recovery?:RecoveryHandle)=>void,profileEdits?:Profile,onReviewFact?:(dossierId:string,factId:string)=>void,onReviewQueue?:()=>void,recoveryHandle:RecoveryHandle={}){
+ if(profileEdits)profile={...profile,revision:profileEdits.revision};
  let alive=true,busy=false,generation=0,savedGeneration=draft?.id&&!profileEdits?0:-1,previewIntent=0,previewRevision=0,listIntent=0,historyLoading=false;
  let draftId=draft?.id??'',draftRevision=draft?.revision??0,operation:Promise<void>|undefined;
  let suspendedDraft:ResumeDraft|undefined,suspendedProfile:Profile|undefined;
@@ -28,6 +30,10 @@ export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,p
     <section class="resume-export-info" data-resume-export tabindex="-1"><h2>导出简历</h2><p data-export-target>当前草稿</p><p class="field-help">导出当前草稿会先保存独立版本，之后的编辑不会改动它。保存草稿不等于保存版本。</p><button class="text-button" data-current hidden>返回当前草稿</button></section><section data-version-list aria-label="历史简历版本" hidden></section></aside></div>
   <section class="resume-actions" role="region" aria-label="简历操作"><div class="resume-action-message"><p role="status" data-resume-status>尚未保存草稿</p><span data-action-target>导出对象：当前草稿</span></div><div class="resume-action-buttons"><button class="solid-button" type="submit" form="resume-editor-form" data-mutate>保存并预览</button><button class="outline-button" data-freeze data-mutate>保存为版本</button><button class="outline-button" data-format="pdf" data-mutate>导出 PDF</button><button class="outline-button" data-format="docx" data-mutate>导出 Word</button></div></section></section>`;
  const form=root.querySelector<HTMLFormElement>('form')!,status=root.querySelector<HTMLElement>('[data-resume-status]')!,sections=root.querySelector<HTMLElement>('[data-sections]')!,preview=root.querySelector<HTMLIFrameElement>('iframe')!;
+ status.insertAdjacentHTML('afterend','<p class="field-help" role="status" data-recovery-status></p><button type="button" class="text-button" data-recovery-copy hidden>另存恢复副本</button>');
+ const recoveryStatus=root.querySelector<HTMLElement>('[data-recovery-status]')!,recoveryCopy=root.querySelector<HTMLButtonElement>('[data-recovery-copy]')!;
+ const recovery=resumeRecovery(recoveryHandle,()=>({draft:input(),baseRevision:draftRevision||null,profileRevision:profile.revision,profileEdits:profileInput()}),message=>{recoveryStatus.textContent=message;recoveryCopy.hidden=!message.includes('失败');});
+ recoveryCopy.onclick=()=>void recovery.saveCopy();
  const get=<T extends HTMLElement>(selector:string)=>root.querySelector<T>(selector)!;
  function stage(name:string,move=true){root.querySelectorAll('[data-stage]').forEach(b=>{if(b.getAttribute('data-stage')===name)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});if(move){const target=get<HTMLElement>(name==='select'?'[data-resume-selection]':name==='edit'?'[data-resume-edit]':'[data-resume-export]');target.focus({preventScroll:true});target.scrollIntoView({block:'start'});}}
  function controls(){root.querySelectorAll<HTMLButtonElement>('[data-mutate],[data-version],[data-versions],[data-current]').forEach(b=>b.disabled=busy||historyLoading);get('[aria-label="简历操作"]').setAttribute('aria-busy',String(busy));get('[data-selection-count]').textContent=`已选 ${selected.size} 条`;}
@@ -44,7 +50,7 @@ export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,p
   if(!cached){displayKey='';get('[data-pages]').textContent='';}
   controls();
  }
- function dirty(message='有未保存修改'){generation++;history=undefined;historyLoading=false;previewIntent++;status.textContent=message;paintPreview();}
+ function dirty(message='有未保存修改'){generation++;history=undefined;historyLoading=false;previewIntent++;status.textContent=message;recovery.changed();paintPreview();}
  function drawSections(){sections.innerHTML=sectionOrder.map((title,index)=>{
   const candidates=facts.filter(f=>sectionFor(f)===title&&(f.status==='confirmed'||selected.has(f.id)));
   return `<section class="resume-section"><details ${candidates.length?'open':''}><summary><h3>${esc(title)}</h3><span>${candidates.length} 条可选</span></summary><div class="resume-section-order"><button type="button" data-move="${index}:-1" aria-label="上移${esc(title)}" ${index===0?'disabled':''}>↑ 上移</button><button type="button" data-move="${index}:1" aria-label="下移${esc(title)}" ${index===sectionOrder.length-1?'disabled':''}>↓ 下移</button></div>${candidates.map(f=>`<div class="resume-fact" data-fact="${f.id}"><label class="check-label"><input type="checkbox" data-select="${f.id}" aria-label="选择事实：${esc(f.text)}" ${selected.has(f.id)?'checked':''} ${f.status!=='confirmed'&&!selected.has(f.id)?'disabled':''}><span>${esc(f.text)} <small>v${f.revision}${f.status!=='confirmed'?' · 已失效，请移出或重新核对':''}</small></span></label><div data-wording-area ${selected.has(f.id)?'':'hidden'}><label>投递表述<textarea rows="3" data-wording="${f.id}" aria-label="简历表述：${esc(f.text)}">${esc(editText[f.id]??f.text)}</textarea></label>${selected.has(f.id)&&revisions[f.id]!==f.revision?`<button type="button" class="text-button" data-update="${f.id}">已重新核对，采用 v${f.revision}</button>`:''}</div><div class="resume-fact-tools"><button type="button" class="text-button" data-evidence="${f.id}">查看证明摘录</button><button type="button" class="text-button" data-review-fact="${f.id}">核对原事实 ↗</button></div><p data-proof-for="${f.id}" class="field-help" hidden></p></div>`).join('')||'<p class="field-help">暂无已确认事实。<button type="button" class="text-button" data-review-queue>去核对档案</button></p>'}</details></section>`;
@@ -53,9 +59,10 @@ export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,p
  function profileInput(){const data=new FormData(form);return Object.fromEntries(profileFields.map(([key])=>[key,String(data.get('profile-'+key))])) as Pick<Profile,typeof profileFields[number][0]>;}
  async function save(){
   const savedAt=generation,snapshot=input(),fields=profileInput();frozen=undefined;paintPreview();status.textContent='正在保存…';
-  if(Object.entries(fields).some(([key,value])=>profile[key as keyof Profile]!==value)){profile=await api<Profile>('profile',{input:fields,expectedRevision:profile.revision||null});if(suspendedProfile)suspendedProfile.revision=profile.revision;}
+  if(Object.entries(fields).some(([key,value])=>profile[key as keyof Profile]!==value)){profile=await api<Profile>('profile',{input:fields,expectedRevision:profile.revision||null});if(suspendedProfile)suspendedProfile.revision=profile.revision;recovery.changed();}
   const saved=await api<ResumeDraft>('resume-drafts',{input:snapshot,expectedRevision:draftRevision||null});draftId=saved.id;draftRevision=saved.revision;savedGeneration=savedAt;
   if(suspendedDraft){suspendedDraft.id=saved.id;suspendedDraft.revision=saved.revision;}
+  await recovery.saved(()=>savedAt===generation);
   if(!alive)return {saved,generation:savedAt};
   const built=await api<Built>(`resume-drafts/${saved.id}/build`);
   if(alive){currentPreview={built,generation:savedAt,key:++previewRevision};renderIssues(built);paintPreview();status.textContent=savedAt===generation?'草稿已保存':'已保存先前输入，当前内容仍有未保存修改。';}
@@ -87,5 +94,5 @@ export function mountResumeEditor(root:HTMLElement,draft:ResumeDraft|undefined,p
  };
  drawSections();paintPreview();
  if(draftId){const ticket=previewIntent;void api<Built>(`resume-drafts/${draftId}/build`,undefined,reads.signal).then(built=>{if(alive&&ticket===previewIntent){currentPreview={built,generation:savedGeneration,key:++previewRevision};renderIssues(built);paintPreview();status.textContent=savedGeneration!==generation?'有未保存修改':built.issues.some(issue=>issue.level==='blocking')?'草稿存在待处理问题':'草稿已保存';}}).catch(error=>{if(alive&&ticket===previewIntent)status.textContent='无法读取已保存预览：'+error.message;});}
- return()=>{if(form.isConnected){suspendedDraft={...input(),id:draftId,revision:draftRevision};suspendedProfile={...profile,...profileInput()};onSuspend?.(suspendedDraft,suspendedProfile,busy?operation:undefined);}alive=false;reads.abort();preview.onload=null;root.onclick=null;form.onsubmit=null;};
+ return()=>{if(form.isConnected){suspendedDraft={...input(),id:draftId,revision:draftRevision};suspendedProfile={...profile,...profileInput()};onSuspend?.(suspendedDraft,suspendedProfile,recovery.suspend(busy?operation:undefined),recoveryHandle);}alive=false;reads.abort();preview.onload=null;root.onclick=null;form.onsubmit=null;};
 }
