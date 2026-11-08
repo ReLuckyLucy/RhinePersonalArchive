@@ -16,10 +16,18 @@ ongoing dates only from explicitly selected and confirmed boolean proof fields;
 old facts and historical resume versions keep their existing semantics. Review
 also covers field snapshot preservation and explicit adoption of dossier corrections.
 
+Verification: production build, 88/88 integration tests, all 17 browser cases in
+sequential groups, independent re-review, and source privacy checks (955 files,
+27 markers, zero matches). Accepted source `8387994` was integrated into main;
+[Windows and Docker checks](https://github.com/ReLuckyLucy/RhinePersonalArchive/actions/runs/42439554566)
+passed, including exports, encrypted restore and restart persistence.
+
 Pre-upgrade protection: user-created encrypted backup and a separate new-directory
-restore were observed successful without changing the active library. Verification
-and integration results for this slice are recorded in the development log and
-reliability plan. Published v0.1.0 assets have not been replaced.
+restore were observed successful without changing the active library. The local
+service now runs the new build with schema 4; all 23 original table snapshots and
+the configuration hash matched the pre-upgrade check. The live editor shows recovery
+guidance without saving personal edits or enqueueing materials. Published v0.1.0
+assets have not been replaced. Further details are in the development log and plan.
 
 Native TypeScript/Three.js UI and Node 24.10/SQLite local backend. Runtime data
 is external to source control, Docker context and downloadable bundles.

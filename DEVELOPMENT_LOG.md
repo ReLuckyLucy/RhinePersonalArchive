@@ -28,9 +28,17 @@
 - Independent focused re-review approved both fact-revision fixes with no remaining
   Critical/Important issues. Source packaging inspected 955 public files against
   27 private markers with zero matches; no library/configuration entered the package.
-- Main integration, local activation and remote Windows/Docker results follow
-  after this accepted source. DOCX Office visual and real iPhone/Safari acceptance
-  remain separate. This slice does not replace published v0.1.0 assets.
+- Integrated accepted source `8387994` into main and reran all 88 integration
+  tests on the merged source. Built/restarted the local service using its existing
+  configuration after the real backup checks. Schema advanced 3→4 with one new
+  recovery table; snapshots of all 23 previous tables and the configuration hash
+  matched the pre-upgrade check. No private material processing was started.
+- [Windows/Docker run](https://github.com/ReLuckyLucy/RhinePersonalArchive/actions/runs/42439554566)
+  passed for `8387994`: source build/tests/package, five Windows browser cases,
+  native/container export and encrypted restore, and restart persistence. The live
+  resume editor displays the new recovery guidance; no personal edits were saved.
+- DOCX Office visual and real iPhone/Safari acceptance remain separate. This slice
+  does not replace published v0.1.0 assets; final documentation records acceptance.
 
 ## 2026-10-24 — export formatting checks
 

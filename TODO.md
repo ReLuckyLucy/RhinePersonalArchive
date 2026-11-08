@@ -7,7 +7,7 @@
 - [x] Reconnect expired sessions once on the same library; block stale edits after a library switch.
 - [x] Explicitly select and confirm ongoing date status; carry it into new resume documents without altering historical versions.
 - [x] Verify schema-3 encrypted backups before migration and include recovery snapshots in new backups.
-- [ ] Finish independent review, public packaging/privacy checks, main integration and remote Windows/Docker acceptance.
+- [x] Independent review, public packaging/privacy checks, main integration and remote Windows/Docker acceptance.
 - [ ] Add cross-refresh recovery for dossier and fact forms in a later slice.
 - [ ] Decide a new downloadable release after source acceptance; published v0.1.0 assets are unchanged.
 

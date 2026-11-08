@@ -23,7 +23,7 @@
 - [x] Recovery service: schema migration, bounded/validated authenticated APIs, optimistic revisions, backup/restore manifest coverage and old-backup compatibility.
 - [x] Recovery editor: one autosave controller, list restoration, immediate navigation flush, safe formal-save cleanup, failure/conflict/unsaved-exit behavior.
 - [x] Run full integration and browser regression groups, independent final review, source privacy scan and continuity/usage updates.
-- [ ] Commit/integrate the verified work and verify remote Windows/Docker checks. Apply to the local service only after real backup and restore verification.
+- [x] Commit/integrate the verified work and verify remote Windows/Docker checks. Apply to the local service only after real backup and restore verification.
 
 ## Execution ledger
 
@@ -34,3 +34,5 @@
 - Independent review identified two date-revision issues: unselected live dates interfering with validation, and snapshot fields lacking explicit adoption of dossier corrections. Both were reproduced, fixed and approved in focused re-review.
 - Local acceptance: production build, 88 integration tests and all 17 browser cases passed in sequential groups. A harness run interrupted by a concurrent development reload was repeated after edits stopped. A changed pending-save label was restored and the complete resume flow then passed.
 - Source packaging and privacy acceptance: 955 public source files, 27 private identity markers, zero matches. The local staging package contains no configuration or library data; published release assets remain unchanged.
+- Accepted source `8387994` was fast-forwarded to main, tested again (88/88), built and activated locally. Schema advanced from 3 to 4; all 23 original table snapshots and the configuration hash matched the pre-upgrade check, and no material jobs were enqueued.
+- [Windows and Docker acceptance](https://github.com/ReLuckyLucy/RhinePersonalArchive/actions/runs/42439554566) passed for `8387994`, including native/container export, encrypted restore, restart persistence, source packaging and the new recovery browser cases on Windows. A final documentation-only commit records these results.
